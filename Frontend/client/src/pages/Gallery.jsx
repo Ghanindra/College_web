@@ -1,0 +1,182 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+
+export default function AdminGalleryUpload() {
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "event",
+  });
+  const [image, setImage] = useState(null);
+  const [gallery, setGallery] = useState([]);
+  const [error, setError] = useState("");
+  const [editingId, setEditingId] = useState(null);
+
+  const token = localStorage.getItem("token");
+
+  const fetchGallery = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/gallery");
+      setGallery(res.data);
+    } catch (err) {
+      setError("Failed to load gallery");
+    }
+  };
+
+  useEffect(() => {
+    fetchGallery();
+  }, []);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      if (editingId) {
+        // Only text fields editable, not image
+        await axios.put(
+          `http://localhost:5000/api/gallery/${editingId}`,
+          form,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        setEditingId(null);
+      } else {
+        if (!image) return setError("Please select an image.");
+
+        const formData = new FormData();
+        formData.append("title", form.title);
+        formData.append("description", form.description);
+        formData.append("category", form.category);
+        formData.append("image", image);
+
+        await axios.post("http://localhost:5000/api/gallery", formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      }
+
+      setForm({ title: "", description: "", category: "event" });
+      setImage(null);
+      fetchGallery();
+    } catch (err) {
+      setError("Failed to save image");
+      console.error(err);
+    }
+  };
+
+  const handleEdit = (item) => {
+    setEditingId(item._id);
+    setForm({
+      title: item.title,
+      description: item.description,
+      category: item.category,
+    });
+    setImage(null); // do not update image on edit
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this image?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/gallery/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        fetchGallery();
+      } catch (err) {
+        setError("Failed to delete image");
+        console.error(err);
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setForm({ title: "", description: "", category: "event" });
+    setImage(null);
+  };
+
+  return (
+    <div style={{ maxWidth: 600, margin: "auto" }}>
+      <h2>{editingId ? "Edit Gallery Item" : "Upload New Image"}</h2>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
+        <input
+          type="text"
+          name="title"
+          placeholder="Title"
+          value={form.title}
+          onChange={handleChange}
+          required
+          style={{ width: "100%", marginBottom: 10 }}
+        />
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={form.description}
+          onChange={handleChange}
+          required
+          style={{ width: "100%", marginBottom: 10 }}
+        />
+        <select
+          name="category"
+          value={form.category}
+          onChange={handleChange}
+          style={{ width: "100%", marginBottom: 10 }}
+        >
+          <option value="event">Event</option>
+          <option value="activity">Activity</option>
+        </select>
+
+        {!editingId && (
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            style={{ marginBottom: 10 }}
+          />
+        )}
+
+        <button type="submit">
+          {editingId ? "Update Image Info" : "Upload Image"}
+        </button>
+        {editingId && (
+          <button type="button" onClick={handleCancel} style={{ marginLeft: 10 }}>
+            Cancel
+          </button>
+        )}
+      </form>
+
+      <h3>Uploaded Gallery</h3>
+      {gallery.map((item) => (
+        <div key={item._id} style={{ marginBottom: 30 }}>
+          <img
+            src={`http://localhost:5000${item.imageUrl}`}
+            alt={item.title}
+            width={200}
+          />
+          <p><strong>{item.title}</strong> ({item.category})</p>
+          <p>{item.description}</p>
+          <button onClick={() => handleEdit(item)}>Edit</button>
+          <button onClick={() => handleDelete(item._id)} style={{ marginLeft: 10 }}>
+            Delete
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
