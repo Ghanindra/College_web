@@ -7,6 +7,9 @@ require("dotenv").config();
 
 const auth = require("./middleware/auth");
 const app = express();
+const examFormRoutes = require('./routes/examFormRoutes');
+const resultRoutes = require('./routes/resultRoutes');
+const examRoutineRoutes = require('./routes/examRoutineRoutes');
 app.use(cors());
 app.use(express.json());
 
@@ -17,10 +20,13 @@ app.use("/api/events", require("./routes/eventRoutes"));
 app.use("/api/courses", require("./routes/courseRoutes"));
 // Serve uploaded files
 app.use("/uploads", express.static("uploads"));
-// Add gallery route
+
 app.use("/api/gallery", require("./routes/galleryRoutes"));
 app.use("/api/faculties", require("./routes/facultyRoutes"));
-
+app.use("/api/activity", require("./routes/activityRoutes"));
+app.use('/api/forms', examFormRoutes);
+app.use('/api/results', resultRoutes);
+app.use('/api/routine', examRoutineRoutes);
 // Function to create default admin
 async function createDefaultAdmin() {
   try {
@@ -29,17 +35,17 @@ async function createDefaultAdmin() {
       const hashed = await bcrypt.hash("Admin@123", 10);
       const admin = new Admin({ email: "admin@gmail.com", password: hashed });
       await admin.save();
-      console.log("✅ Default admin created: admin@gmail.com / Admin@123");
+      console.log(" Default admin created: admin@gmail.com / Admin@123");
     } else {
-      console.log("ℹ️ Default admin already exists.");
+      console.log("ℹ Default admin already exists.");
     }
   } catch (err) {
-    console.error("❌ Error creating default admin:", err);
+    console.error(" Error creating default admin:", err);
   }
 }
 
 mongoose.connect(process.env.MONGO_URI).then(async () => {
-  console.log("✅ MongoDB connected");
+  console.log(" MongoDB connected");
   await createDefaultAdmin();
   app.listen(5000, () => console.log("🚀 Server running on port 5000"));
 });

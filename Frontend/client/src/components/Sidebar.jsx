@@ -1,14 +1,15 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import "./Sidebar.css"; // Import the CSS
 
 const Sidebar = () => {
   const linkClass = ({ isActive }) =>
     isActive ? "sidebar-link active" : "sidebar-link";
 
   return (
-    <div className="sidebar" style={{ width: 220, padding: 20, background: "#222", height: "100vh", color: "#fff" }}>
-      <h2 style={{ color: "white", marginBottom: 30 }}>Admin Dashboard</h2>
-      <nav style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+    <div className="sidebar">
+      <h2 className="sidebar-title">Admin Dashboard</h2>
+      <nav className="sidebar-nav">
         <NavLink to="/dashboard/notices" className={linkClass}>
           Notices
         </NavLink>
@@ -23,6 +24,15 @@ const Sidebar = () => {
         </NavLink>
         <NavLink to="/dashboard/gallery" className={linkClass}>
           Gallery
+        </NavLink>
+        <NavLink to="/dashboard/examform" className={linkClass}>
+          Exam Forms
+        </NavLink>
+         <NavLink to="/dashboard/addresult" className={linkClass}>
+          Add Result
+        </NavLink>
+           <NavLink to="/dashboard/addroutine" className={linkClass}>
+          Add Routine
         </NavLink>
         <NavLink to="/login" className={linkClass}>
           Logout

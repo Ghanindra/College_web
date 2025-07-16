@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import "./AllNotice.css"; 
 import TuHeader from "../components/TuHeader"; 
@@ -39,18 +40,19 @@ filter: "contrast(120%) saturate(115%) brightness(0.9)",
         All Notices
       </div>
       <h2>All Notices</h2>
-      <ul className="notice-list">
-        {notices.map((notice) => (
-          <li key={notice._id} className="notice-item">
-            <h3>{notice.title}</h3>
-               <p>{notice.content}</p>
-            <p className="notice-date">
-              {new Date(notice.date).toLocaleDateString()}
-            </p>
-         
-          </li>
-        ))}
-      </ul>
+    <ul className="notice-list">
+  {notices.map((notice) => (
+    <li key={notice._id} className="notice-item">
+      <Link to={`/news/${notice._id}`} className="notice-link">
+        <h3>{notice.title}</h3>
+        <p>{notice.content.slice(0, 100)}...</p>
+        <p className="notice-date">
+          {new Date(notice.date).toLocaleDateString()}
+        </p>
+      </Link>
+    </li>
+  ))}
+</ul>
     </div>
   );
 }

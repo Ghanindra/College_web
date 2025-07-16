@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "./Event.css";
 
 const PAGE_SIZE = 5;
 
@@ -13,12 +14,13 @@ export default function Events() {
     title: "",
     description: "",
     date: "",
+    imageFile: null,
+    imagePreview: null,
   });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch events from backend with pagination and search
   async function fetchEvents() {
     try {
       setLoading(true);
@@ -40,7 +42,21 @@ export default function Events() {
   }, [page, search]);
 
   function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function handleImageChange(e) {
+    const file = e.target.files[0];
+    if (file) {
+      setForm((prev) => ({
+        ...prev,
+        imageFile: file,
+        imagePreview: URL.createObjectURL(file),
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, imageFile: null, imagePreview: null }));
+    }
   }
 
   async function handleSubmit(e) {
@@ -48,21 +64,31 @@ export default function Events() {
     setError("");
 
     try {
-      if (editingId) {
-        await axios.put(
-          `http://localhost:5000/api/events/${editingId}`,
-          form,
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-      } else {
-        await axios.post("http://localhost:5000/api/events", form, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
+      const formData = new FormData();
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("date", form.date);
+      if (form.imageFile) {
+        formData.append("image", form.imageFile);
       }
-      setForm({ title: "", description: "", date: "" });
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
+      if (editingId) {
+        await axios.put(`http://localhost:5000/api/events/${editingId}`, formData, config);
+      } else {
+        await axios.post("http://localhost:5000/api/events", formData, config);
+      }
+
+      setForm({ title: "", description: "", date: "", imageFile: null, imagePreview: null });
       setEditingId(null);
       fetchEvents();
-    } catch (err) {
+    } catch {
       setError("Failed to save event");
     }
   }
@@ -72,7 +98,9 @@ export default function Events() {
     setForm({
       title: event.title,
       description: event.description,
-      date: event.date.slice(0, 10), // format date for input[type=date]
+      date: event.date.slice(0, 10),
+      imageFile: null,
+      imagePreview: event.imageUrl || null,
     });
   }
 
@@ -90,10 +118,11 @@ export default function Events() {
   }
 
   return (
-    <div>
+    <div className="events-container">
       <h2>Events Management</h2>
 
       <input
+        className="events-search-input"
         type="text"
         placeholder="Search events by title..."
         value={search}
@@ -101,54 +130,35 @@ export default function Events() {
           setPage(1);
           setSearch(e.target.value);
         }}
-        style={{ marginBottom: 20, padding: 8, width: "100%", maxWidth: 400 }}
       />
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="events-error">{error}</p>}
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: 30 }}>
+      <form onSubmit={handleSubmit} className="events-form">
         <h3>{editingId ? "Edit Event" : "Add New Event"}</h3>
-        <div>
-          <label>Title</label>
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", marginBottom: 10 }}
-          />
-        </div>
-        <div>
-          <label>Description</label>
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", marginBottom: 10 }}
-          />
-        </div>
-        <div>
-          <label>Date</label>
-          <input
-            name="date"
-            type="date"
-            value={form.date}
-            onChange={handleChange}
-            required
-            style={{ marginBottom: 10 }}
-          />
-        </div>
+        <label>Title</label>
+        <input name="title" value={form.title} onChange={handleChange} required />
+
+        <label>Description</label>
+        <textarea name="description" value={form.description} onChange={handleChange} required />
+
+        <label>Date</label>
+        <input name="date" type="date" value={form.date} onChange={handleChange} required />
+
+        <label>Image</label>
+        <input type="file" accept="image/*" onChange={handleImageChange} />
+        {form.imagePreview && <img className="events-preview" src={form.imagePreview} alt="Preview" />}
+
         <button type="submit">{editingId ? "Update Event" : "Add Event"}</button>
         {editingId && (
           <button
             type="button"
+            className="cancel-btn"
             onClick={() => {
               setEditingId(null);
-              setForm({ title: "", description: "", date: "" });
+              setForm({ title: "", description: "", date: "", imageFile: null, imagePreview: null });
               setError("");
             }}
-            style={{ marginLeft: 10 }}
           >
             Cancel
           </button>
@@ -158,21 +168,20 @@ export default function Events() {
       {loading ? (
         <p>Loading events...</p>
       ) : (
-        <table border="1" cellPadding="10" style={{ width: "100%", maxWidth: 800 }}>
+        <table className="events-table">
           <thead>
             <tr>
               <th>Title</th>
               <th>Description</th>
               <th>Date</th>
+              <th>Image</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {events.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center" }}>
-                  No events found.
-                </td>
+                <td colSpan="5" className="events-empty">No events found.</td>
               </tr>
             ) : (
               events.map((event) => (
@@ -180,6 +189,17 @@ export default function Events() {
                   <td>{event.title}</td>
                   <td>{event.description}</td>
                   <td>{new Date(event.date).toLocaleDateString()}</td>
+                  <td>
+                    {event.imageUrl ? (
+                      <img
+                        src={`http://localhost:5000${event.imageUrl}`}
+                        alt={event.title}
+                        className="events-thumbnail"
+                      />
+                    ) : (
+                      "No image"
+                    )}
+                  </td>
                   <td>
                     <button onClick={() => startEdit(event)}>Edit</button>{" "}
                     <button onClick={() => handleDelete(event._id)}>Delete</button>
@@ -191,23 +211,12 @@ export default function Events() {
         </table>
       )}
 
-      {/* Pagination */}
-      <div style={{ marginTop: 20 }}>
-        <button
-          onClick={() => setPage((p) => Math.max(p - 1, 1))}
-          disabled={page === 1}
-          style={{ marginRight: 10 }}
-        >
+      <div className="events-pagination">
+        <button onClick={() => setPage((p) => Math.max(p - 1, 1))} disabled={page === 1}>
           Previous
         </button>
-        <span>
-          Page {page} of {totalPages}
-        </span>
-        <button
-          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-          disabled={page === totalPages}
-          style={{ marginLeft: 10 }}
-        >
+        <span>Page {page} of {totalPages}</span>
+        <button onClick={() => setPage((p) => Math.min(p + 1, totalPages))} disabled={page === totalPages}>
           Next
         </button>
       </div>

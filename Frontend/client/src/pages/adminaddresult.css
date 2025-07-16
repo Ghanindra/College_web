@@ -1,0 +1,151 @@
+/* ---------- RESET & VARIABLES ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg: #f7f9fc;
+  --card: #ffffff;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --success: #16a34a;
+  --danger: #ef4444;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 8px;
+  --shadow: 0 2px 6px rgba(0,0,0,.05), 0 8px 16px rgba(0,0,0,.05);
+  --font: "Inter", system-ui, sans-serif;
+  --transition: .2s ease-in-out;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: #111827;
+}
+
+/* ---------- CONTAINER ---------- */
+.admin-add-result {
+  max-width: 680px;
+  margin: 48px auto;
+  padding: 0 24px;
+}
+
+.admin-add-result h2 {
+  font-size: 1.75rem;
+  margin-bottom: 24px;
+}
+
+/* ---------- FEEDBACK ---------- */
+.message {
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  font-size: .9rem;
+}
+
+.message.success {
+  background: #dcfce7;
+  color: var(--success);
+}
+
+.message.error {
+  background: #fee2e2;
+  color: var(--danger);
+}
+
+/* ---------- FORM ---------- */
+.form-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow);
+}
+
+.form-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.form-grid input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  transition: border-color var(--transition);
+}
+
+.form-grid input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* ---------- SUBJECT SECTION ---------- */
+.subject-section {
+  margin-top: 28px;
+}
+
+.subject-section h3 {
+  font-size: 1.125rem;
+  margin-bottom: 12px;
+  color: var(--muted);
+}
+
+.subject-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.subject-row input {
+  width: 100%;
+}
+
+.btn-add-subject {
+  margin-top: 8px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--primary);
+  border: 1px dashed var(--primary);
+  border-radius: var(--radius);
+  padding: 8px 16px;
+  font-size: .875rem;
+  transition: background var(--transition), color var(--transition);
+}
+
+.btn-add-subject:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn-submit {
+  margin-top: 32px;
+  width: 100%;
+  padding: 12px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background var(--transition);
+}
+
+.btn-submit:hover {
+  background: var(--primary-dark);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 600px) {
+  .subject-row {
+    grid-template-columns: 1fr;
+  }
+}

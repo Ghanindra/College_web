@@ -1,0 +1,103 @@
+/* ---------- RESET & VARIABLES ---------- */
+:root {
+  --bg: #f7f9fc;
+  --card: #ffffff;
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 8px;
+  --shadow: 0 2px 6px rgba(0,0,0,.05), 0 8px 16px rgba(0,0,0,.05);
+  --font: "Inter", system-ui, sans-serif;
+  --transition: .2s ease-in-out;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: #111827;
+}
+
+/* ---------- CONTAINER ---------- */
+.exam-routine-upload {
+  max-width: 640px;
+  margin: 48px auto;
+  padding: 0 24px;
+}
+
+.exam-routine-upload h2 {
+  font-size: 1.75rem;
+  margin-bottom: 24px;
+}
+
+/* ---------- UPLOAD CARD ---------- */
+.upload-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 32px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ---------- FILE INPUT ---------- */
+.file-input-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.file-input-wrapper input[type="file"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  transition: background var(--transition);
+}
+
+.upload-btn:hover {
+  background: var(--primary-dark);
+}
+
+/* ---------- PREVIEW ---------- */
+.preview-wrapper {
+  width: 100%;
+  max-width: 500px;
+}
+
+.preview-wrapper h3 {
+  font-size: 1.125rem;
+  margin-bottom: 8px;
+  color: var(--muted);
+}
+
+.preview-img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 600px) {
+  .exam-routine-upload {
+    margin: 24px auto;
+  }
+}

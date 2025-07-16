@@ -2,11 +2,22 @@ const express = require("express");
 const router = express.Router();
 const Notice = require("../models/Notice");
 const auth = require("../middleware/auth");
+const Activity = require("../models/Activity");
 const mongoose = require("mongoose");
 // CREATE
 router.post("/", auth, async (req, res) => {
   const notice = new Notice(req.body);
   await notice.save();
+   // Automatically add to activity
+    await Activity.create({
+      title: notice.title,
+      type: "notice",
+      refId: notice._id,
+      category: req.body.category || "General",
+      imageUrl: notice.imageUrl || null,
+      date: notice.date,
+      summary: notice.content?.slice(0, 150) + "..." || "",
+    });
   res.json(notice);
 });
 

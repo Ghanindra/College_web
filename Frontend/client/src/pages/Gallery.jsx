@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import "./gallery.css"; // Make sure this is created
 
-export default function AdminGalleryUpload() {
+export default function Gallery() {
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -41,7 +42,6 @@ export default function AdminGalleryUpload() {
 
     try {
       if (editingId) {
-        // Only text fields editable, not image
         await axios.put(
           `http://localhost:5000/api/gallery/${editingId}`,
           form,
@@ -86,7 +86,7 @@ export default function AdminGalleryUpload() {
       description: item.description,
       category: item.category,
     });
-    setImage(null); // do not update image on edit
+    setImage(null);
   };
 
   const handleDelete = async (id) => {
@@ -110,11 +110,11 @@ export default function AdminGalleryUpload() {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: "auto" }}>
+    <div className="gallery-admin-container">
       <h2>{editingId ? "Edit Gallery Item" : "Upload New Image"}</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
 
-      <form onSubmit={handleSubmit} style={{ marginBottom: 20 }}>
+      <form onSubmit={handleSubmit} className="gallery-form">
         <input
           type="text"
           name="title"
@@ -122,7 +122,6 @@ export default function AdminGalleryUpload() {
           value={form.title}
           onChange={handleChange}
           required
-          style={{ width: "100%", marginBottom: 10 }}
         />
         <textarea
           name="description"
@@ -130,32 +129,21 @@ export default function AdminGalleryUpload() {
           value={form.description}
           onChange={handleChange}
           required
-          style={{ width: "100%", marginBottom: 10 }}
         />
-        <select
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          style={{ width: "100%", marginBottom: 10 }}
-        >
+        <select name="category" value={form.category} onChange={handleChange}>
           <option value="event">Event</option>
           <option value="activity">Activity</option>
         </select>
 
         {!editingId && (
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            style={{ marginBottom: 10 }}
-          />
+          <input type="file" accept="image/*" onChange={handleImageChange} />
         )}
 
         <button type="submit">
           {editingId ? "Update Image Info" : "Upload Image"}
         </button>
         {editingId && (
-          <button type="button" onClick={handleCancel} style={{ marginLeft: 10 }}>
+          <button type="button" className="cancel-btn" onClick={handleCancel}>
             Cancel
           </button>
         )}
@@ -163,18 +151,20 @@ export default function AdminGalleryUpload() {
 
       <h3>Uploaded Gallery</h3>
       {gallery.map((item) => (
-        <div key={item._id} style={{ marginBottom: 30 }}>
+        <div key={item._id} className="gallery-item">
           <img
             src={`http://localhost:5000${item.imageUrl}`}
             alt={item.title}
-            width={200}
+            className="gallery-img"
           />
-          <p><strong>{item.title}</strong> ({item.category})</p>
+          <p>
+            <strong>{item.title}</strong> ({item.category})
+          </p>
           <p>{item.description}</p>
-          <button onClick={() => handleEdit(item)}>Edit</button>
-          <button onClick={() => handleDelete(item._id)} style={{ marginLeft: 10 }}>
-            Delete
-          </button>
+          <div className="gallery-actions">
+            <button onClick={() => handleEdit(item)}>Edit</button>
+            <button onClick={() => handleDelete(item._id)}>Delete</button>
+          </div>
         </div>
       ))}
     </div>

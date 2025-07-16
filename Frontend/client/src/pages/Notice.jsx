@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import "./Notice.css"; // ✅ Import the CSS
 
 const API_URL = "http://localhost:5000/api/notices";
 
-export default function Notices() {
+export default function Notice() {
   const [notices, setNotices] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -32,7 +33,7 @@ export default function Notices() {
     if (!window.confirm("Are you sure to delete?")) return;
     try {
       await axios.delete(`${API_URL}/${id}`, {
-        headers: { Authorization:  `Bearer ${token}`},
+        headers: { Authorization: `Bearer ${token}` },
       });
       fetchNotices();
     } catch (error) {
@@ -56,16 +57,14 @@ export default function Notices() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting form:", form, "Editing ID:", editingId);
-    
     try {
       if (editingId) {
         await axios.put(`${API_URL}/${editingId}`, form, {
-          headers: { Authorization:  `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` },
         });
       } else {
         await axios.post(API_URL, form, {
-          headers: { Authorization:  `Bearer ${token}`},
+          headers: { Authorization: `Bearer ${token}` },
         });
         alert("Notice added successfully");
       }
@@ -78,7 +77,7 @@ export default function Notices() {
   };
 
   return (
-    <div style={{ maxWidth: 700, margin: "auto", padding: 20 }}>
+    <div className="notice-container">
       <h2>Manage Notices</h2>
 
       {/* Search */}
@@ -87,18 +86,17 @@ export default function Notices() {
         placeholder="Search title..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        style={{ marginBottom: 20, width: "100%" }}
+        className="notice-search"
       />
 
-      {/* Notice Form */}
-      <form onSubmit={handleSubmit} style={{ marginBottom: 30 }}>
+      {/* Form */}
+      <form onSubmit={handleSubmit} className="notice-form">
         <input
           type="text"
           placeholder="Title"
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           required
-          style={{ width: "100%", marginBottom: 10 }}
         />
         <textarea
           placeholder="Content"
@@ -106,70 +104,42 @@ export default function Notices() {
           onChange={(e) => setForm({ ...form, content: e.target.value })}
           required
           rows={4}
-          style={{ width: "100%", marginBottom: 10 }}
         />
         <input
           type="text"
           placeholder="Category"
           value={form.category}
           onChange={(e) => setForm({ ...form, category: e.target.value })}
-          style={{ width: "100%", marginBottom: 10 }}
         />
-        <button type="submit">{editingId ? "Update" : "Add"} Notice</button>
-        {editingId && (
-          <button
-            type="button"
-            onClick={handleCancel}
-            style={{ marginLeft: 10 }}
-          >
-            Cancel
-          </button>
-        )}
+        <div className="form-buttons">
+          <button type="submit">{editingId ? "Update" : "Add"} Notice</button>
+          {editingId && <button onClick={handleCancel} type="button">Cancel</button>}
+        </div>
       </form>
 
-      {/* Notice List */}
+      {/* List */}
       {notices.length === 0 && <p>No notices found</p>}
-      <ul style={{ listStyle: "none", padding: 0 }}>
+      <ul className="notice-list">
         {notices.map((notice) => (
-          <li
-            key={notice._id}
-            style={{
-              border: "1px solid #ccc",
-              marginBottom: 10,
-              padding: 10,
-              borderRadius: 5,
-            }}
-          >
+          <li key={notice._id} className="notice-item">
             <h3>{notice.title}</h3>
             <p>{notice.content}</p>
             <small>Category: {notice.category || "N/A"}</small>
-            <br />
-            <button onClick={() => handleEdit(notice)}>Edit</button>
-            <button
-              onClick={() => handleDelete(notice._id)}
-              style={{ marginLeft: 10, color: "red" }}
-            >
-              Delete
-            </button>
+            <div className="notice-actions">
+              <button onClick={() => handleEdit(notice)}>Edit</button>
+              <button onClick={() => handleDelete(notice._id)} className="danger">Delete</button>
+            </div>
           </li>
         ))}
       </ul>
 
       {/* Pagination */}
-      <div style={{ marginTop: 20 }}>
-        <button
-          disabled={page <= 1}
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
-        >
+      <div className="pagination">
+        <button disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
           Previous
         </button>
-        <span style={{ margin: "0 10px" }}>
-          Page {page} of {totalPages}
-        </span>
-        <button
-          disabled={page >= totalPages}
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-        >
+        <span>Page {page} of {totalPages}</span>
+        <button disabled={page >= totalPages} onClick={() => setPage((p) => Math.min(totalPages, p + 1))}>
           Next
         </button>
       </div>

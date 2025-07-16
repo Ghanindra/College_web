@@ -10,8 +10,16 @@ import Faculty from "./pages/Faculty";
 import Gallery from "./pages/Gallery";
 import HomePageTu from "./pages/HomePageTu";
 import AllNotice from "./pages/AllNotice"; 
+import AllEvent from "./pages/AllEvent"; 
 import './App.css'
 import NoticeDetailsPage from "./pages/NoticDetailsPage";
+import GalleryPage from "./pages/GalleryPage";
+import ExamForm from "./pages/ExamForm";
+import ExamFormAdmin from "./pages/ExamFormAdmin";
+import ResultSearch from "./pages/ResultSearch";
+import AdminAddResult from "./pages/AdminAddResult";
+import ExamRoutine from "./pages/ExamRoutine";
+import ExamRoutineGallery from "./pages/ExamRoutineGallery";
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" />;
@@ -26,6 +34,12 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/news" element={<AllNotice />} /> 
         <Route path="/news/:id" element={<NoticeDetailsPage />} />
+        <Route path="/events" element={<AllEvent />} />
+        <Route path="/gallery" element={<GalleryPage />} />
+           <Route path="/examform" element={<ExamForm />} />
+           <Route path="/resultsearch" element={<ResultSearch/>} />
+           <Route path="/examroutine" element={<ExamRoutineGallery/>} />
+
         {/* Protected dashboard and its children */}
         <Route
           path="/dashboard"
@@ -40,6 +54,10 @@ export default function App() {
           <Route path="courses" element={<Courses />} />
           <Route path="faculty" element={<Faculty />} />
           <Route path="gallery" element={<Gallery />} />
+          <Route path="/dashboard/examform" element={<ExamFormAdmin/>} />
+          <Route path="/dashboard/addresult" element={<AdminAddResult/>} />
+          <Route path="/dashboard/addroutine" element={<ExamRoutine/>} />
+       
         </Route>
 
         {/* Catch all unmatched routes */}
