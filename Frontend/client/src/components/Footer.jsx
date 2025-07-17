@@ -24,7 +24,7 @@ export default function Footer() {
         <div className="footer-section">
           <h4 className="footer-subtitle">Contact Info</h4>
           <div className="contact-info">
-            <p>📍 Kirtipur, Kathmandu, Nepal</p>
+            <p> Kirtipur, Kathmandu, Nepal</p>
             <p>📞 +977-1-4330433</p>
             <p>✉️ info@tu.edu.np</p>
           </div>

@@ -1,8 +1,15 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./Sidebar.css"; // Import the CSS
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
   const linkClass = ({ isActive }) =>
     isActive ? "sidebar-link active" : "sidebar-link";
 
@@ -28,15 +35,20 @@ const Sidebar = () => {
         <NavLink to="/dashboard/examform" className={linkClass}>
           Exam Forms
         </NavLink>
-         <NavLink to="/dashboard/addresult" className={linkClass}>
+        <NavLink to="/dashboard/addresult" className={linkClass}>
           Add Result
         </NavLink>
-           <NavLink to="/dashboard/addroutine" className={linkClass}>
+        <NavLink to="/dashboard/addroutine" className={linkClass}>
           Add Routine
         </NavLink>
-        <NavLink to="/login" className={linkClass}>
-          Logout
+        <NavLink to="/dashboard/register" className={linkClass}>
+          Register
         </NavLink>
+
+        {/* Logout Button */}
+        <button onClick={handleLogout} className="sidebar-link logout-button">
+          Logout
+        </button>
       </nav>
     </div>
   );

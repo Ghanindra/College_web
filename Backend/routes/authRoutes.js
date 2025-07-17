@@ -5,16 +5,21 @@ const jwt = require("jsonwebtoken");
 const Admin = require("../models/Admin");
 
 // Register Admin (One time only)
+// Example Express.js register route
 router.post("/register", async (req, res) => {
-  const { email, password } = req.body;
+  const { name, email, password } = req.body;
+  try {
+    const existingUser = await Admin.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: "Email already exists" });
 
-  const existing = await Admin.findOne({ email });
-  if (existing) return res.status(400).json({ message: "User exists" });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new Admin({ name, email, password: hashedPassword });
+    await newUser.save();
 
-  const hashed = await bcrypt.hash(password, 10);
-  const admin = new Admin({ email, password: hashed });
-  await admin.save();
-  res.json({ message: "Admin created" });
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Something went wrong" });
+  }
 });
 
 // Login Admin

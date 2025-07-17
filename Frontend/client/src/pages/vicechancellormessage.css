@@ -1,0 +1,64 @@
+.vc-message-container {
+  padding: 60px 20px;
+  background-color: #f4f4f4;
+  margin-top: 3rem;
+}
+.Message{
+    width:99vw;
+}
+.vc-message-content {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  background: white;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.vc-left {
+  flex: 2;
+  min-width: 300px;
+}
+
+.vc-left h2 {
+  font-size: 2rem;
+  color: #004080;
+  margin-bottom: 10px;
+}
+
+.vc-left p {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.vc-right {
+  flex: 1;
+  text-align: center;
+  min-width: 250px;
+}
+
+.vc-right img {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.vc-right img:hover {
+  transform: scale(1.05);
+}
+
+.vc-name {
+  margin-top: 12px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #222;
+}
