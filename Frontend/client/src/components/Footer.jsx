@@ -15,8 +15,8 @@ export default function Footer() {
         <div className="footer-section">
           <h4 className="footer-subtitle">Quick Links</h4>
           <ul className="footer-links">
-            <li><Link to="/about">About TU</Link></li>
-            <li><Link to="/admissions">Admissions</Link></li>
+            <li><Link to="/aboutus">About TU</Link></li>
+            {/* <li><Link to="/admissions">Admissions</Link></li> */}
             <li><Link to="/research">Research</Link></li>
             <li><Link to="/contact">Contact</Link></li>
           </ul>

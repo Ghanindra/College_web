@@ -23,17 +23,15 @@ const Sidebar = () => {
         <NavLink to="/dashboard/events" className={linkClass}>
           Events
         </NavLink>
-        <NavLink to="/dashboard/courses" className={linkClass}>
-          Courses
-        </NavLink>
-        <NavLink to="/dashboard/faculty" className={linkClass}>
-          Faculty
-        </NavLink>
+      
         <NavLink to="/dashboard/gallery" className={linkClass}>
           Gallery
         </NavLink>
         <NavLink to="/dashboard/examform" className={linkClass}>
           Exam Forms
+        </NavLink>
+        <NavLink to="/dashboard/formconfig" className={linkClass}>
+         Allow Exam Form
         </NavLink>
         <NavLink to="/dashboard/addresult" className={linkClass}>
           Add Result

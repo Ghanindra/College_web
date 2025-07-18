@@ -10,6 +10,7 @@ const app = express();
 const examFormRoutes = require('./routes/examFormRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const examRoutineRoutes = require('./routes/examRoutineRoutes');
+const contactRoutes = require('./routes/contactRoutes');
 app.use(cors());
 app.use(express.json());
 
@@ -17,7 +18,7 @@ app.use(express.json());
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/notices", require("./routes/noticeRoutes"));
 app.use("/api/events", require("./routes/eventRoutes"));
-app.use("/api/courses", require("./routes/courseRoutes"));
+// app.use("/api/courses", require("./routes/courseRoutes"));
 // Serve uploaded files
 app.use("/uploads", express.static("uploads"));
 
@@ -27,6 +28,8 @@ app.use("/api/activity", require("./routes/activityRoutes"));
 app.use('/api/forms', examFormRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/routine', examRoutineRoutes);
+app.use('/api/contact', contactRoutes);
+
 // Function to create default admin
 async function createDefaultAdmin() {
   try {

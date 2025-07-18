@@ -31,6 +31,7 @@ const examFormSchema = new mongoose.Schema({
   year: String,
   batch: String,
   collegeName: String,
+  course: String,
   examCenter: String,
   subjects: [
     {
@@ -43,10 +44,13 @@ const examFormSchema = new mongoose.Schema({
   method: String,
  
 },
+plusTwoDocument: String,
+citizenshipDocument: String,
+
   photo: String,
   paymentStatus: {
     type: String,
-    enum: ['pending', 'completed'],
+    enum: ['pending', 'completed','rejected'],
     default: 'pending',
   },
   createdAt: {

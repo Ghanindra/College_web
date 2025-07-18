@@ -1,14 +1,3 @@
-// const mongoose = require("mongoose");
-
-// const facultySchema = new mongoose.Schema({
-//   name: { type: String, required: true },
-//   head: String,         // Head of Department name
-//   description: String,
-//   contactEmail: String,
-//   contactPhone: String,
-// });
-
-// module.exports = mongoose.model("Faculty", facultySchema);
 
 
 const mongoose = require("mongoose");

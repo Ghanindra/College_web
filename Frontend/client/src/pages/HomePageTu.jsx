@@ -360,11 +360,11 @@ filter: "contrast(120%) saturate(115%) brightness(0.9)",
             <h4 className="footer-subtitle">Quick Links</h4>
             <ul className="footer-links">
               <li>
-                <Link to="/about">About TU</Link>
+                <Link to="/aboutus">About TU</Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/admissions">Admissions</Link>
-              </li>
+              </li> */}
               <li>
                 <Link to="/research">Research</Link>
               </li>

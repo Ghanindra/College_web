@@ -192,8 +192,14 @@ export default function ExamFormAdmin() {
     setLoading(true)
     try {
       const res = await axios.get("http://localhost:5000/api/forms/forms", {
+     
+      
         params: tuRegistrationNo ? { tuRegistrationNo } : {},
+   
+        
       })
+      console.log("exam form", res.data);
+      
       setForms(res.data)
     } catch (error) {
       alert("Error fetching forms")
@@ -206,16 +212,33 @@ export default function ExamFormAdmin() {
     fetchForms()
   }, [])
 
-  const approvePayment = async (id) => {
-    try {
-      await axios.patch(`http://localhost:5000/api/forms/forms/${id}/approve`)
-      alert("Payment approved")
-      fetchForms(searchTu)
-    } catch (error) {
-      alert("Error approving payment")
-      console.error(error)
-    }
+  const approvePayment = async (id, email) => {
+  try {
+    // Step 1: Approve the payment
+    await axios.patch(`http://localhost:5000/api/forms/forms/${id}/approve`)
+
+    // Step 2: Send email notification
+    await axios.post(`http://localhost:5000/api/forms/forms/${id}/send-email`, {
+      email,
+    })
+
+    alert("Payment approved and email sent")
+    fetchForms(searchTu)
+  } catch (error) {
+    alert("Error approving payment or sending email")
+    console.error(error)
   }
+}
+const rejectPayment = async (id) => {
+  try {
+    await axios.patch(`http://localhost:5000/api/forms/forms/${id}/reject`);
+    alert("Form rejected and email sent");
+    fetchForms(searchTu); // Refresh the list
+  } catch (error) {
+    alert("Error rejecting form");
+    console.error(error);
+  }
+};
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -314,6 +337,7 @@ export default function ExamFormAdmin() {
                 <p>Year: {form.year}</p>
                 <p>Batch: {form.batch}</p>
                 <p>College Name: {form.collegeName}</p>
+                <p>Course: {form.course}</p>
                 <p>Exam Center: {form.examCenter}</p>
                 <h4>Subjects</h4>
                 {form.subjects && form.subjects.length > 0 ? (
@@ -341,18 +365,45 @@ export default function ExamFormAdmin() {
                 ) : (
                   <p>No photo uploaded.</p>
                 )}
+                 {form.plusTwoDocument? (
+                  <img
+                    src={`http://localhost:5000/uploads/${form.plusTwoDocument}`}
+                    alt="Uploaded Photo"
+                    className="uploaded-photo"
+                  />
+                ) : (
+                  <p>No photo uploaded.</p>
+                )}
+                 {form.citizenshipDocument? (
+                  <img
+                    src={`http://localhost:5000/uploads/${form.citizenshipDocument}`}
+                    alt="Uploaded Photo"
+                    className="uploaded-photo"
+                  />
+                ) : (
+                  <p>No photo uploaded.</p>
+                )}
                 <p>
                   <strong>Submitted At:</strong> {new Date(form.createdAt).toLocaleString()}
                 </p>
               </div>{" "}
               {/* End of wrapper div */}
-              {form.paymentStatus === "pending" ? (
-                <button onClick={() => approvePayment(form._id)} className="btn-approve">
-                  Approve Payment
-                </button>
-              ) : (
-                <span className="approved-text">Payment Approved</span>
-              )}
+             {form.paymentStatus === "pending" ? (
+  <>
+    <button onClick={() => approvePayment(form._id, form.contact?.email)} className="bg-green-500 text-white px-3 py-1 rounded mr-2">
+      Approve Payment
+    </button>
+    <button onClick={() => rejectPayment(form._id)} className="bg-red-500 text-white px-3 py-1 rounded">
+      Reject
+    </button>
+  </>
+) : form.paymentStatus === "completed" ? (
+  <span className="text-green-600 font-semibold">Form Approved</span>
+) : (
+  <span className="text-red-600 font-semibold">Form Rejected</span>
+)}
+
+
             </div>
           ))}
         </div>

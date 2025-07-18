@@ -26,6 +26,11 @@ import './App.css'
 import TuConvocation from "./pages/TuConvocation";
 import ViceChancellorMessage from "./pages/ViceChancellorMessage";
 import Register from "./pages/Register";
+import FormConfig from "./pages/FormConfig";
+import Contact from "./pages/Contact";
+import AboutUs from "./pages/AboutUs";
+import Research from "./pages/Research";
+
 
 
 
@@ -49,6 +54,9 @@ export default function App() {
         {/* <Route path="/courses/:courseId" element={<CourseDetail />} /> */}
         <Route path="/tuconvocation" element={<TuConvocation />} />
         <Route path="/vicechancellormessage" element={<ViceChancellorMessage />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/aboutus" element={<AboutUs />} />
+        <Route path="/research" element={<Research/>} />
 
         {/* Protected dashboard and its children */}
         <Route
@@ -70,6 +78,7 @@ export default function App() {
           <Route path="examform" element={<ExamFormAdmin/>} />
           <Route path="addresult" element={<AdminAddResult/>} />
           <Route path="addroutine" element={<ExamRoutine/>} />
+          <Route path="formconfig" element={<FormConfig/>} />
           
        
         </Route>
