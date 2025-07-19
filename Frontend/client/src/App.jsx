@@ -30,6 +30,8 @@ import FormConfig from "./pages/FormConfig";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
 import Research from "./pages/Research";
+import Failure from "./pages/Failure";
+import Success from "./pages/Success";
 
 
 
@@ -57,6 +59,8 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/research" element={<Research/>} />
+        <Route path="/success" element={<Success/>} />
+        <Route path="/failure" element={<Failure/>} />
 
         {/* Protected dashboard and its children */}
         <Route

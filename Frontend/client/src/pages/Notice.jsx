@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Notice.css"; // ✅ Import the CSS
-
+import { toast } from "react-toastify";
 const API_URL = "http://localhost:5000/api/notices";
 
 export default function Notice() {
@@ -66,13 +66,13 @@ export default function Notice() {
         await axios.post(API_URL, form, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        alert("Notice added successfully");
+        toast.success("Notice added successfully");
       }
       setForm({ title: "", content: "", category: "" });
       setEditingId(null);
       fetchNotices();
     } catch (error) {
-      alert("Save failed");
+      toast.error("Save failed");
     }
   };
 

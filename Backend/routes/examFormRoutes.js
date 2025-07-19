@@ -51,6 +51,38 @@ router.post(
     }
   }
 );
+
+// examFormRoutes.js
+router.post(
+  "/draft",
+  
+  upload.fields([
+    { name: "photo", maxCount: 1 },
+    { name: "plusTwoDocument", maxCount: 1 },
+    { name: "citizenshipDocument", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    console.log("hit /draft");           // sanity check
+    console.log("files", req.files);     // see if multer parsed
+    console.log("body", req.body);       // see if JSON.parse fails
+    try {
+      const parsed = JSON.parse(req.body.data || "{}");
+
+      // build the record the same way you do in the normal POST /
+      const draft = await ExamForm.create({
+        ...parsed,
+        photo: req.files["photo"]?.[0]?.filename || null,
+        plusTwoDocument: req.files["plusTwoDocument"]?.[0]?.filename || null,
+        citizenshipDocument: req.files["citizenshipDocument"]?.[0]?.filename || null,
+        status: "payment-pending",
+      });
+      res.json({ draftId: draft._id, productId: draft._id });
+    } catch (e) {
+      console.error("draft error", e);
+      res.status(500).json({ message: e.message });
+    }
+  }
+);
 // GET all forms for admin
 router.get('/', async (req, res) => {
   try {

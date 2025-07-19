@@ -24,7 +24,25 @@ router.post("/", upload.single("image"), auth, async (req, res) => {
   await img.save();
   res.json(img);
 });
+// galleryRoutes.js
 
+
+router.put(
+  "/:id",
+  auth,
+  upload.single("image"),        // optional single file
+  async (req, res) => {
+    const update = {
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category,
+    };
+    if (req.file) update.image = req.file.filename;
+
+    await Gallery.findByIdAndUpdate(req.params.id, update);
+    res.json({ message: "Updated" });
+  }
+);
 
 router.get("/", async (req, res) => {
   const category = req.query.category;

@@ -1,8 +1,6 @@
 
 
-
-
-// import React,{useEffect,useState} from "react";
+// import React, { useEffect, useState } from "react";
 // import { useFormik } from "formik";
 // import * as Yup from "yup";
 // import axios from "axios";
@@ -11,12 +9,12 @@
 //   const [isFormOpen, setIsFormOpen] = useState(false);
 //   const [loading, setLoading] = useState(true);
 
-
-
 //   useEffect(() => {
 //     const checkFormStatus = async () => {
 //       try {
-//         const res = await axios.get("http://localhost:5000/api/forms/form-config?formType=examForm");
+//         const res = await axios.get(
+//           "http://localhost:5000/api/forms/form-config?formType=examForm"
+//         );
 //         const { startTime, endTime } = res.data;
 
 //         const now = new Date();
@@ -32,6 +30,7 @@
 
 //     checkFormStatus();
 //   }, []);
+
 //   const formik = useFormik({
 //     initialValues: {
 //       fullName: "",
@@ -49,15 +48,14 @@
 //       year: "",
 //       batch: "",
 //       collegeName: "",
-      
 //       examCenter: "",
-//       course:"",
+//       course: "",
 //       subjects: "", // comma separated: "Math, English"
 //       paymentAmount: "",
 //       paymentMethod: "",
-//          plusTwoDocument: null,   
-//       citizenshipDocument: null,
-//       photo: null,
+//       plusTwoDocument: null, // top-level file
+//       citizenshipDocument: null, // top-level file
+//       photo: null, // top-level file
 //       academicRecords: [
 //         {
 //           exam: "",
@@ -67,8 +65,6 @@
 //           marks: "",
 //           percentage: "",
 //           division: "",
-       
-
 //         },
 //       ],
 //     },
@@ -81,7 +77,7 @@
 //       district: Yup.string().required("District is required"),
 //       municipality: Yup.string().required("Municipality is required"),
 //       ward: Yup.string().required("Ward is required"),
-        
+//       citizenshipDocument: Yup.mixed().required("Citizenship Document is required"),
 //       phone: Yup.string()
 //         .matches(/^[0-9]{10}$/, "Phone must be exactly 10 digits")
 //         .required("Phone is required"),
@@ -99,7 +95,6 @@
 //       batch: Yup.string().required("Batch is required"),
 //       collegeName: Yup.string().required("College Name is required"),
 //       course: Yup.string().required("Course selection is required"),
-
 //       examCenter: Yup.string().required("Exam Center is required"),
 //       subjects: Yup.string().required("Subjects are required"),
 //       paymentAmount: Yup.number()
@@ -107,9 +102,8 @@
 //         .required("Payment amount is required")
 //         .min(200, "Minimum payment is NPR 200"),
 //       paymentMethod: Yup.string().required("Payment method is required"),
-//          plusTwoDocument: Yup.mixed().required("+2 Document is required"),
-//       citizenshipDocument: Yup.mixed().required("Citizenship Document is required"),
 //       photo: Yup.mixed().required("Photo is required"),
+//       plusTwoDocument: Yup.mixed().required("+2 Document is required"),
 //       academicRecords: Yup.array()
 //         .of(
 //           Yup.object({
@@ -120,32 +114,21 @@
 //             marks: Yup.string().required("Marks are required"),
 //             percentage: Yup.string().required("Percentage is required"),
 //             division: Yup.string().required("Division is required"),
-       
-
-
 //           })
 //         )
 //         .min(1, "At least one academic record is required"),
 //     }),
 //     onSubmit: async (values) => {
-//         console.log("Submitting form with values:", values);
 //       try {
 //         const formData = new FormData();
-//           formData.append("data", JSON.stringify(values));
-//         formData.append("photo", values.photo);
 
-// formData.append("citizenshipDocument", values.citizenshipDocument); 
-// // Append plusTwoDocument from the first academic record
-// if (values.academicRecords.length > 0 && values.academicRecords[0].plusTwoDocument) {
-//   formData.append("plusTwoDocument", values.academicRecords[0].plusTwoDocument);
-// }
-//         // Convert comma-separated subjects to array of objects
+//         // Prepare subjects array
 //         const formattedSubjects = values.subjects.split(",").map((title, idx) => ({
 //           code: `SUB${idx + 1}`,
 //           title: title.trim(),
 //         }));
 
-//         // Build data object to send (except photo)
+//         // Build data object except files
 //         const data = {
 //           fullName: values.fullName,
 //           nationality: values.nationality,
@@ -168,7 +151,7 @@
 //           batch: values.batch,
 //           collegeName: values.collegeName,
 //           examCenter: values.examCenter,
-//           course:values.course,
+//           course: values.course,
 //           subjects: formattedSubjects,
 //           paymentDetails: {
 //             amount: values.paymentAmount,
@@ -177,6 +160,11 @@
 //         };
 
 //         formData.append("data", JSON.stringify(data));
+
+//         // Append files
+//         formData.append("photo", values.photo);
+//         formData.append("citizenshipDocument", values.citizenshipDocument);
+//         formData.append("plusTwoDocument", values.plusTwoDocument);
 
 //         await axios.post("http://localhost:5000/api/forms", formData, {
 //           headers: { "Content-Type": "multipart/form-data" },
@@ -191,7 +179,7 @@
 //     },
 //   });
 
-//   // Handlers for academic records dynamic form
+//   // Academic Records handlers
 //   const addAcademicRecord = () => {
 //     formik.setFieldValue("academicRecords", [
 //       ...formik.values.academicRecords,
@@ -210,7 +198,8 @@
 //     records[index][field] = value;
 //     formik.setFieldValue("academicRecords", records);
 //   };
-//    if (loading) return <p>Checking form availability...</p>;
+
+//   if (loading) return <p>Checking form availability...</p>;
 
 //   if (!isFormOpen)
 //     return (
@@ -221,7 +210,6 @@
 //     );
 
 //   return (
-    
 //     <form
 //       onSubmit={formik.handleSubmit}
 //       encType="multipart/form-data"
@@ -263,28 +251,30 @@
 //           )}
 //         </div>
 //       ))}
-// <div style={{ marginBottom: 10 }}>
-//   <label>Course</label>
-//   <br />
-//   <select
-//     name="course"
-//     value={formik.values.course}
-//     onChange={formik.handleChange}
-//     onBlur={formik.handleBlur}
-//     style={{ width: "100%", padding: 8 }}
-//   >
-//     <option value="">Select a course</option>
-//     <option value="CSIT">CSIT</option>
-//     <option value="BIT">BIT</option>
-//     <option value="Engineering">Engineering</option>
-//     <option value="Management">Management</option>
-//     <option value="Arts">Arts</option>
-//     <option value="Law">Law</option>
-//   </select>
-//   {formik.touched.course && formik.errors.course && (
-//     <div style={{ color: "red" }}>{formik.errors.course}</div>
-//   )}
-// </div>
+
+//       {/* Course */}
+//       <div style={{ marginBottom: 10 }}>
+//         <label>Course</label>
+//         <br />
+//         <select
+//           name="course"
+//           value={formik.values.course}
+//           onChange={formik.handleChange}
+//           onBlur={formik.handleBlur}
+//           style={{ width: "100%", padding: 8 }}
+//         >
+//           <option value="">Select a course</option>
+//           <option value="CSIT">CSIT</option>
+//           <option value="BIT">BIT</option>
+//           <option value="Engineering">Engineering</option>
+//           <option value="Management">Management</option>
+//           <option value="Arts">Arts</option>
+//           <option value="Law">Law</option>
+//         </select>
+//         {formik.touched.course && formik.errors.course && (
+//           <div style={{ color: "red" }}>{formik.errors.course}</div>
+//         )}
+//       </div>
 
 //       {/* Academic Records */}
 //       <h3>Academic Records</h3>
@@ -303,7 +293,17 @@
 //             <button
 //               type="button"
 //               onClick={() => removeAcademicRecord(idx)}
-//               style={{ position: "absolute", right: 10, top: 10, background: "red", color: "white", border: "none", borderRadius: 4, padding: "2px 8px", cursor: "pointer" }}
+//               style={{
+//                 position: "absolute",
+//                 right: 10,
+//                 top: 10,
+//                 background: "red",
+//                 color: "white",
+//                 border: "none",
+//                 borderRadius: 4,
+//                 padding: "2px 8px",
+//                 cursor: "pointer",
+//               }}
 //             >
 //               X
 //             </button>
@@ -416,36 +416,43 @@
 //           <div style={{ color: "red" }}>{formik.errors.paymentMethod}</div>
 //         )}
 //       </div>
-// {/* +2 Document Upload */}
-// <div style={{ marginBottom: 15 }}>
-//   <label>+2 Document</label>
-//   <input
-//     name="plusTwoDocument"
-//     type="file"
-//     onChange={(e) => formik.setFieldValue("plusTwoDocument", e.currentTarget.files[0])}
-//     onBlur={formik.handleBlur}
-//     accept="application/pdf,image/*"
-//     style={{ display: "block", marginTop: 6 }}
-//   />
-//   {formik.touched.plusTwoDocument && formik.errors.plusTwoDocument && (
-//     <div style={{ color: "red" }}>{formik.errors.plusTwoDocument}</div>
-//   )}
-// </div>
-// {/* Citizenship Upload */}
-// <div style={{ marginBottom: 15 }}>
-//   <label>Citizenship Document</label>
-//   <input
-//     name="citizenshipDocument"
-//     type="file"
-//     onChange={(e) => formik.setFieldValue("citizenshipDocument", e.currentTarget.files[0])}
-//     onBlur={formik.handleBlur}
-//     accept="application/pdf,image/*"
-//     style={{ display: "block", marginTop: 6 }}
-//   />
-//   {formik.touched.citizenshipDocument && formik.errors.citizenshipDocument && (
-//     <div style={{ color: "red" }}>{formik.errors.citizenshipDocument}</div>
-//   )}
-// </div>
+
+//       {/* +2 Document Upload */}
+//       <div style={{ marginBottom: 15 }}>
+//         <label>+2 Document</label>
+//         <input
+//           name="plusTwoDocument"
+//           type="file"
+//           onChange={(e) =>
+//             formik.setFieldValue("plusTwoDocument", e.currentTarget.files[0])
+//           }
+//           onBlur={formik.handleBlur}
+//           accept="application/pdf,image/*"
+//           style={{ display: "block", marginTop: 6 }}
+//         />
+//         {formik.touched.plusTwoDocument && formik.errors.plusTwoDocument && (
+//           <div style={{ color: "red" }}>{formik.errors.plusTwoDocument}</div>
+//         )}
+//       </div>
+
+//       {/* Citizenship Upload */}
+//       <div style={{ marginBottom: 15 }}>
+//         <label>Citizenship Document</label>
+//         <input
+//           name="citizenshipDocument"
+//           type="file"
+//           onChange={(e) =>
+//             formik.setFieldValue("citizenshipDocument", e.currentTarget.files[0])
+//           }
+//           onBlur={formik.handleBlur}
+//           accept="application/pdf,image/*"
+//           style={{ display: "block", marginTop: 6 }}
+//         />
+//         {formik.touched.citizenshipDocument && formik.errors.citizenshipDocument && (
+//           <div style={{ color: "red" }}>{formik.errors.citizenshipDocument}</div>
+//         )}
+//       </div>
+
 //       {/* Photo Upload */}
 //       <div style={{ marginBottom: 15 }}>
 //         <label>Photo</label>
@@ -482,11 +489,16 @@
 
 
 
+
+
+
 import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
-
+import { toast } from "react-toastify";
+// inside ExamForm.jsx, right after the other imports
+const token = () => localStorage.getItem("token");   // quick accessor
 export default function ExamForm() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -512,7 +524,17 @@ export default function ExamForm() {
 
     checkFormStatus();
   }, []);
-
+// inside ExamForm.jsx (top-level of the component)
+const initiateEsewa = async (payload) => {
+  const token = localStorage.getItem("token"); // or however you store JWT
+  const { data } = await axios.post(
+    "http://localhost:5000/initiate-payment",
+    payload,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  // data.url is the eSewa checkout URL generated by esewajs
+  window.location.href = data.url;
+};
   const formik = useFormik({
     initialValues: {
       fullName: "",
@@ -600,65 +622,91 @@ export default function ExamForm() {
         )
         .min(1, "At least one academic record is required"),
     }),
+    
     onSubmit: async (values) => {
-      try {
-        const formData = new FormData();
+  try {
+    // 1.  Build the payload we always send
+    const formattedSubjects = values.subjects
+      .split(",")
+      .map((t, i) => ({ code: `SUB${i + 1}`, title: t.trim() }));
 
-        // Prepare subjects array
-        const formattedSubjects = values.subjects.split(",").map((title, idx) => ({
-          code: `SUB${idx + 1}`,
-          title: title.trim(),
-        }));
+    const data = {
+      fullName: values.fullName,
+      nationality: values.nationality,
+      dob: values.dob,
+      fatherName: values.fatherName,
+      address: {
+        province: values.province,
+        district: values.district,
+        municipality: values.municipality,
+        ward: values.ward,
+      },
+      contact: { phone: values.phone, email: values.email },
+      academicRecords: values.academicRecords,
+      tuRegistrationNo: values.tuRegistrationNo,
+      semester: values.semester,
+      year: values.year,
+      batch: values.batch,
+      collegeName: values.collegeName,
+      examCenter: values.examCenter,
+      course: values.course,
+      subjects: formattedSubjects,
+      paymentDetails: {
+        amount: Number(values.paymentAmount),
+        method: values.paymentMethod,
+      },
+    };
 
-        // Build data object except files
-        const data = {
-          fullName: values.fullName,
-          nationality: values.nationality,
-          dob: values.dob,
-          fatherName: values.fatherName,
-          address: {
-            province: values.province,
-            district: values.district,
-            municipality: values.municipality,
-            ward: values.ward,
-          },
-          contact: {
-            phone: values.phone,
-            email: values.email,
-          },
-          academicRecords: values.academicRecords,
-          tuRegistrationNo: values.tuRegistrationNo,
-          semester: values.semester,
-          year: values.year,
-          batch: values.batch,
-          collegeName: values.collegeName,
-          examCenter: values.examCenter,
-          course: values.course,
-          subjects: formattedSubjects,
-          paymentDetails: {
-            amount: values.paymentAmount,
-            method: values.paymentMethod,
-          },
-        };
+    /* ---------- 2️⃣  eSewa path ---------- */
+    if (values.paymentMethod === "eSewa") {
+      // 2-a.  save the form as DRAFT
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(data));
+      formData.append("photo", values.photo);
+      formData.append("citizenshipDocument", values.citizenshipDocument);
+      formData.append("plusTwoDocument", values.plusTwoDocument);
 
-        formData.append("data", JSON.stringify(data));
+      const { data: resDraft } = await axios.post(
+        "http://localhost:5000/api/forms/draft",
+        formData,
+        { headers: { Authorization: `Bearer ${token()}` } }
+      );
 
-        // Append files
-        formData.append("photo", values.photo);
-        formData.append("citizenshipDocument", values.citizenshipDocument);
-        formData.append("plusTwoDocument", values.plusTwoDocument);
+      // 2-b.  start eSewa checkout
+      await axios.post(
+        "http://localhost:5000/initiate-payment",
+        {
+          campaignId: "exam-form",
+          productId: resDraft.productId,
+          amount: Number(values.paymentAmount),
+        },
+        { headers: { Authorization: `Bearer ${token()}` } }
+      ).then(({ data }) => {
+        window.location.href = data.url;   // go to eSewa
+      });
+      return;   // stop here
+    }
 
-        await axios.post("http://localhost:5000/api/forms", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+    /* ---------- 3️⃣  normal (non-eSewa) path ---------- */
+    const formData = new FormData();
+    formData.append("data", JSON.stringify(data));
+    formData.append("photo", values.photo);
+    formData.append("citizenshipDocument", values.citizenshipDocument);
+    formData.append("plusTwoDocument", values.plusTwoDocument);
 
-        alert("Form submitted successfully!");
-        formik.resetForm();
-      } catch (error) {
-        alert("Error submitting form.");
-        console.error(error);
-      }
-    },
+    await axios.post("http://localhost:5000/api/forms", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token()}`,
+      },
+    });
+    toast.success("Form submitted successfully!");
+    formik.resetForm();
+  } catch (err) {
+    toast.error("Error submitting form.");
+    console.error(err);
+  }
+},
   });
 
   // Academic Records handlers

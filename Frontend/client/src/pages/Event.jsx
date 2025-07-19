@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import "./Event.css";
 
 const PAGE_SIZE = 5;
@@ -78,6 +79,7 @@ export default function Events() {
           "Content-Type": "multipart/form-data",
         },
       };
+      toast.success("Event Added Successfully")
 
       if (editingId) {
         await axios.put(`http://localhost:5000/api/events/${editingId}`, formData, config);
@@ -90,6 +92,7 @@ export default function Events() {
       fetchEvents();
     } catch {
       setError("Failed to save event");
+      toast.error("Event added failure")
     }
   }
 

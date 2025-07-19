@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import axios from "axios";
 import "./ExamRoutine.css"; 
+import { toast } from "react-toastify";
 export default function ExamRoutineUpload() {
   const fileInputRef = useRef(null);
   const [imageUrl, setImageUrl] = useState(null); 
@@ -30,7 +31,7 @@ export default function ExamRoutineUpload() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file");
+      toast.info("Please upload an image file");
       return;
     }
 
@@ -41,13 +42,13 @@ export default function ExamRoutineUpload() {
       const res = await axios.post("http://localhost:5000/api/routine/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      alert(res.data.message);
+      toast.success(res.data.message);
 
       // After successful upload, fetch latest image URL to display
       fetchLatestRoutine();
     } catch (error) {
       console.error("Upload failed", error);
-      alert("Upload failed");
+      toast.error("Upload failed");
     }
 
     if (fileInputRef.current) {

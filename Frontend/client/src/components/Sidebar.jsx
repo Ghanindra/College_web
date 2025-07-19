@@ -1,13 +1,14 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./Sidebar.css"; // Import the CSS
-
+import { toast } from "react-toastify";
 const Sidebar = () => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
+toast.success("Admin Logout Successfully")
   };
 
   const linkClass = ({ isActive }) =>
@@ -17,6 +18,9 @@ const Sidebar = () => {
     <div className="sidebar">
       <h2 className="sidebar-title">Admin Dashboard</h2>
       <nav className="sidebar-nav">
+          <NavLink to="/dashboard" className={linkClass}>
+          Dashboard
+        </NavLink>
         <NavLink to="/dashboard/notices" className={linkClass}>
           Notices
         </NavLink>

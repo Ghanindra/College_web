@@ -62,7 +62,6 @@ router.post("/", upload.single("image"), async (req, res) => {
   }
 });
 
-
 // READ with pagination & search
 router.get("/", async (req, res) => {
   const { page = 1, limit = 5, search = "", category = "" } = req.query;
@@ -78,6 +77,22 @@ router.get("/", async (req, res) => {
     .limit(parseInt(limit));
 
   res.json({ total, page, totalPages: Math.ceil(total / limit), events });
+});
+
+router.get("/all", async (req, res) => {
+  const { search = "", category = "" } = req.query;
+  const filter = {
+    title: { $regex: search, $options: "i" },
+    ...(category && { category }),
+  };
+
+  const total = await Event.countDocuments(filter);
+  const events = await Event.find(filter)
+    .sort({ date: -1 })
+    // .skip((page - 1) * limit)
+    // .limit(parseInt(limit));
+
+  res.json({ total,  events });
 });
 
 // UPDATE

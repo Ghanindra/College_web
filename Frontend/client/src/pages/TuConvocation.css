@@ -5,7 +5,8 @@
   position: relative;
   color: white;
   height:50vh;
-  margin-top:3rem;
+  /* margin-top:3rem; */
+  border:15px;
 }
 .convocationHeader{
     width:99vw;
@@ -13,7 +14,8 @@
 .convocation-overlay {
   background-color: rgba(0, 0, 0, 0.6); /* dark overlay for text readability */
   padding: 50px;
-
+margin-top:50px;
+margin-bottom:50px;
 }
 
 .convocation-content {

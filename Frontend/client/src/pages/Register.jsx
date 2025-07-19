@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Register.css";
-
+import { toast } from "react-toastify";
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +22,7 @@ export default function Register() {
         password,
       });
 
-      alert("Account created successfully. Please log in.");
+      toast.success("Account created successfully. Please log in.");
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
@@ -61,7 +61,7 @@ export default function Register() {
   <div className="password-input-wrapper">
     <input
       id="password"
-   
+   type={showPassword ? "text" : "password"} 
       className="register-input with-eye"
       value={password}
       onChange={(e) => setPassword(e.target.value)}

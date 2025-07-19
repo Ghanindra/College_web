@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './adminaddresult.css';
-
+import { toast } from "react-toastify";
 export default function AdminAddResult() {
   const [formData, setFormData] = useState({
     symbolNo: '',
@@ -77,7 +77,7 @@ export default function AdminAddResult() {
       };
 
       await axios.post('http://localhost:5000/api/results/add', payload);
-      setMessage('Result added successfully!');
+      toast.success('Result added successfully!');
       setFormData({
         symbolNo: '',
         studentName: '',
@@ -88,7 +88,7 @@ export default function AdminAddResult() {
         grade: ''
       });
     } catch (error) {
-      setMessage('Error adding result: ' + (error.response?.data?.error || error.message));
+      toast.error('Error adding result: ' + (error.response?.data?.error || error.message));
     }
   };
 

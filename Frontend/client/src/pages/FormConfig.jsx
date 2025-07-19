@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
+import { toast } from "react-toastify";
 export default function FormConfig() {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
@@ -12,7 +12,7 @@ export default function FormConfig() {
       startTime,
       endTime,
     });
-    alert("Form schedule updated.");
+    toast.success("Form schedule updated.");
   setStartTime("");
       setEndTime("");
   };

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import "./Login.css";
 
 export default function Login() {
@@ -21,8 +22,10 @@ export default function Login() {
       });
       localStorage.setItem("token", res.data.token);
       navigate("/dashboard");
+      toast.success("Admin Login Successful")
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
+      toast.error("Admin Login Fail")
     }
   };
 
@@ -47,7 +50,7 @@ export default function Login() {
   <div className="password-input-wrapper">
     <input
       id="password"
-      
+      type={showPassword ? "text" : "password"} 
       className="login-input with-eye"
       value={password}
       onChange={(e) => setPassword(e.target.value)}

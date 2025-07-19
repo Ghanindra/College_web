@@ -21,7 +21,14 @@ router.post("/", auth, async (req, res) => {
   res.json(notice);
 });
 
-
+router.get("/all", async (req, res) => {
+  try {
+     const notices = await Notice.find().sort({ date: -1 });
+     res.json(notices);
+   } catch (error) {
+     res.status(500).json({ error: error.message });
+   }
+ });
 // READ (with pagination & search)
 router.get("/", async (req, res) => {
   const { page = 1, limit = 5, search = "", category = "" } = req.query;

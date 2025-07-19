@@ -11,6 +11,8 @@ const examFormRoutes = require('./routes/examFormRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const examRoutineRoutes = require('./routes/examRoutineRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const { EsewaInitiatePayment, paymentStatus } = require("./controllers/esewaController")
+
 app.use(cors());
 app.use(express.json());
 
@@ -29,6 +31,8 @@ app.use('/api/forms', examFormRoutes);
 app.use('/api/results', resultRoutes);
 app.use('/api/routine', examRoutineRoutes);
 app.use('/api/contact', contactRoutes);
+// server.js
+app.use("/api/stats", require("./routes/dashboardStatsRoutes"));
 
 // Function to create default admin
 async function createDefaultAdmin() {
@@ -46,7 +50,10 @@ async function createDefaultAdmin() {
     console.error(" Error creating default admin:", err);
   }
 }
+app.post("/initiate-payment", EsewaInitiatePayment);
+console.log(EsewaInitiatePayment); // should be a function
 
+app.post("/payment-status", paymentStatus);
 mongoose.connect(process.env.MONGO_URI).then(async () => {
   console.log(" MongoDB connected");
   await createDefaultAdmin();

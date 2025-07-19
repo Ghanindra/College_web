@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 import "./gallery.css"; // Make sure this is created
 
 export default function Gallery() {
@@ -36,48 +37,97 @@ export default function Gallery() {
     setImage(e.target.files[0]);
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+
+  //   try {
+  //     if (editingId) {
+  //       await axios.put(
+  //         `http://localhost:5000/api/gallery/${editingId}`,
+  //         form,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //             "Content-Type": "application/json",
+  //           },
+            
+  //         }
+         
+  //       );
+  //        toast.success("Gallery added Successfully")
+  //       setEditingId(null);
+  //     } else {
+  //       if (!image) return setError("Please select an image.");
+
+  //       const formData = new FormData();
+  //       formData.append("title", form.title);
+  //       formData.append("description", form.description);
+  //       formData.append("category", form.category);
+  //       formData.append("image", image);
+
+  //       await axios.post("http://localhost:5000/api/gallery", formData, {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //           "Content-Type": "multipart/form-data",
+  //         },
+  //       });
+  //     }
+
+  //     setForm({ title: "", description: "", category: "event" });
+  //     setImage(null);
+  //     fetchGallery();
+  //   } catch (err) {
+  //     setError("Failed to save image");
+    
+  //     console.error(err);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
 
-    try {
-      if (editingId) {
-        await axios.put(
-          `http://localhost:5000/api/gallery/${editingId}`,
-          form,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        setEditingId(null);
-      } else {
-        if (!image) return setError("Please select an image.");
+  try {
+    const formData = new FormData();
 
-        const formData = new FormData();
-        formData.append("title", form.title);
-        formData.append("description", form.description);
-        formData.append("category", form.category);
-        formData.append("image", image);
+    if (editingId) {
+      // EDIT mode
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("category", form.category);
+      // only append image if user selected a new file
+      if (image) formData.append("image", image);
 
-        await axios.post("http://localhost:5000/api/gallery", formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      }
+      await axios.put(
+        `http://localhost:5000/api/gallery/${editingId}`,
+        formData,                // <- now FormData
+        { headers: { Authorization: `Bearer ${token}` } } // let axios set multipart
+      );
+      toast.success("Gallery updated successfully");
+      setEditingId(null);
+    } else {
+      // CREATE mode (unchanged)
+      if (!image) return setError("Please select an image.");
+      formData.append("title", form.title);
+      formData.append("description", form.description);
+      formData.append("category", form.category);
+      formData.append("image", image);
 
-      setForm({ title: "", description: "", category: "event" });
-      setImage(null);
-      fetchGallery();
-    } catch (err) {
-      setError("Failed to save image");
-      console.error(err);
+      await axios.post("http://localhost:5000/api/gallery", formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Gallery added successfully");
     }
-  };
+
+    setForm({ title: "", description: "", category: "event" });
+    setImage(null);
+    fetchGallery();
+  } catch (err) {
+    setError(err.response?.data?.message || "Failed to save image");
+    console.error(err);
+  }
+};
 
   const handleEdit = (item) => {
     setEditingId(item._id);
@@ -95,6 +145,7 @@ export default function Gallery() {
         await axios.delete(`http://localhost:5000/api/gallery/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        toast.success("Successfully deleted image")
         fetchGallery();
       } catch (err) {
         setError("Failed to delete image");
