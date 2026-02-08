@@ -33,7 +33,8 @@ app.use('/api/routine', examRoutineRoutes);
 app.use('/api/contact', contactRoutes);
 // server.js
 app.use("/api/stats", require("./routes/dashboardStatsRoutes"));
-
+app.use("/api/student", require("./routes/studentAuth"));
+app.use("/api/student", require("./routes/studentDashboard")); // protected route example
 // Function to create default admin
 async function createDefaultAdmin() {
   try {
@@ -57,5 +58,5 @@ app.post("/payment-status", paymentStatus);
 mongoose.connect(process.env.MONGO_URI).then(async () => {
   console.log(" MongoDB connected");
   await createDefaultAdmin();
-  app.listen(5000, () => console.log("🚀 Server running on port 5000"));
+  app.listen(5000, () => console.log(" Server running on port 5000"));
 });

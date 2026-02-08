@@ -222,6 +222,27 @@ router.get("/form-config", async (req, res) => {
   if (!config) return res.status(404).json({ message: "Config not found" });
   res.json(config);
 });
+// GET single exam form by ID
+router.get('/forms/:id', async (req, res) => {
+  try {
+    const form = await ExamForm.findById(req.params.id);
+
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
+
+    res.json(form);
+  } catch (err) {
+    console.error('Error fetching form by id:', err);
+
+    // handle invalid ObjectId
+    if (err.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid form ID' });
+    }
+
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
 
 
 module.exports = router;

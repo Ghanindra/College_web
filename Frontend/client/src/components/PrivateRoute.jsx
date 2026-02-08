@@ -1,30 +1,34 @@
-// components/PrivateRoute.jsx
-import React from "react";
+
+// import { Navigate } from "react-router-dom";
+// import { useAuth } from "../context/useAuth";
+
+// // Protect any route
+// const PrivateRoute = ({ children, roles = [] }) => {
+//   const { user } = useAuth();
+
+//   if (!user) return <Navigate to="/login" />;
+
+//   if (roles.length && !roles.includes(user.role)) return <Navigate to="/login" />;
+
+//   return children;
+// };
+
+// export default PrivateRoute;
+
+
 import { Navigate } from "react-router-dom";
-import {jwtDecode} from "jwt-decode"; // Optional for JWT validation
+import { useAuth } from "../context/useAuth";
 
-const PrivateRoute = ({ children }) => {
-  const token = localStorage.getItem("token");
+export default function PrivateRoute({ children, roles = [] }) {
+  const { token } = useAuth();
 
-  // Basic existence check
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
+  if (!token) return <Navigate to="/login" />;
 
-  // Optional: Validate JWT expiry if using real tokens
-  try {
-    const decoded = jwtDecode(token);
-    const currentTime = Date.now() / 1000;
-    if (decoded.exp < currentTime) {
-      localStorage.removeItem("token");
-      return <Navigate to="/login" />;
-    }
-  } catch (err) {
-    localStorage.removeItem("token");
-    return <Navigate to="/login" />;
-  }
+  const userRole = JSON.parse(atob(token.split(".")[1])).role;
+  
+  console.log("PrivateRoute check → userRole:", userRole, "allowedRoles:", roles);
+
+  if (roles.length && !roles.includes(userRole)) return <Navigate to="/" />;
 
   return children;
-};
-
-export default PrivateRoute;
+}

@@ -3,10 +3,10 @@ import { Link } from "react-router-dom"
 import TuHeader from "../components/TuHeader"
 import graduation from "../assets/graduation.jpg"
 import deepak from "../assets/deepak.jpg"
-import activity1 from "../assets/activity1.jpg"
-import activity2 from "../assets/activity2.jpg"
-import activity3 from "../assets/activity3.jpg"
-import activity4 from "../assets/activity4.jpg"
+// import activity1 from "../assets/activity1.jpg"
+// import activity2 from "../assets/activity2.jpg"
+// import activity3 from "../assets/activity3.jpg"
+// import activity4 from "../assets/activity4.jpg"
 import hero1 from "../assets/hero1.jpg"
 import hero2 from "../assets/hero2.jpg"
 import hero3 from "../assets/hero3.jpg"
@@ -119,32 +119,32 @@ const handleHeroClick = () => {
   const nextIndex = getRandomIndex(currentHeroIndex);
   setCurrentHeroIndex(nextIndex);
 };
-const galleryData = [
-  {
-    image: activity1,
-    alt: 'Activity 1',
-    category: 'Seminar',
-    date: 'July 10, 2025',
-  },
-  {
-    image: activity2,
-    alt: 'Activity 2',
-    category: 'Sports',
-    date: 'June 28, 2025',
-  },
-  {
-    image: activity3,
-    alt: 'Activity 3',
-    category: 'Cultural Program',
-    date: 'May 15, 2025',
-  },
-  {
-    image: activity4,
-    alt: 'Activity 4',
-    category: 'Workshop',
-    date: 'April 5, 2025',
-  },
-];
+// const galleryData = [
+//   {
+//     image: activity1,
+//     alt: 'Activity 1',
+//     category: 'Seminar',
+//     date: 'July 10, 2025',
+//   },
+//   {
+//     image: activity2,
+//     alt: 'Activity 2',
+//     category: 'Sports',
+//     date: 'June 28, 2025',
+//   },
+//   {
+//     image: activity3,
+//     alt: 'Activity 3',
+//     category: 'Cultural Program',
+//     date: 'May 15, 2025',
+//   },
+//   {
+//     image: activity4,
+//     alt: 'Activity 4',
+//     category: 'Workshop',
+//     date: 'April 5, 2025',
+//   },
+// ];
   return (
     <div className="page-container">
       <div>
