@@ -402,7 +402,7 @@ export default function TUHeader() {
             {!user ? (
               <>
                 <NavLink to="/login" className="nav-link">Login</NavLink>
-                <NavLink to="/register" className="nav-link register-btn">Register</NavLink>
+                {/* <NavLink to="/register" className="nav-link register-btn">Register</NavLink> */}
               </>
             ) : (
               <>

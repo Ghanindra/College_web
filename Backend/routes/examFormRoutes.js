@@ -1,28 +1,93 @@
+
+
+// routes/examFormRoutes.js
 const express = require('express');
 const router = express.Router();
-const ExamForm = require('../models/ExamForm');
+const ExamForm = require("../models/ExamForm.js");
 const FormConfig = require('../models/FormConfig');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
-
-// Replace with your email credentials
+const auth = require("../middleware/auth");
+const path = require("path");
+// Email transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'bohoraghanindra@gmail.com', // Your Gmail
-    pass: 'xdixmbhdqwseawhp',       // App Password (not Gmail login)
+    user: 'bohoraghanindra@gmail.com',
+    pass: 'xdixmbhdqwseawhp',
   },
 });
-// Photo upload config
+
+// Multer config
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // make sure this folder exists
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
 });
-// const upload = multer({ storage });
-const upload = multer({ dest: 'uploads/' });
 
+const upload = multer({ storage });
+// ============================================
+// POST /api/forms/draft - Save draft (REQUIRES AUTH)
+// ============================================
+router.post(
+  "/draft",
+  auth(),
+   // Auth middleware MUST be here
+  upload.fields([
+    { name: "photo", maxCount: 1 },
+    { name: "citizenshipDocument", maxCount: 1 },
+    { name: "plusTwoDocument", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      console.log(" Draft route hit");
+      console.log("User from auth:", req.user);
 
+      // Check if user is authenticated
+      if (!req.user || !req.user.id) {
+        return res.status(401).json({ 
+          message: "Unauthorized - Please login first" 
+        });
+      }
 
+      // Parse form data
+      const data = JSON.parse(req.body.data);
+      console.log("Parsed form data:", data);
+
+      // Create draft
+      const draft = await ExamForm.create({
+        ...data,
+        studentId: req.user.id, // From auth middleware
+        photo: req.files.photo?.[0]?.filename,
+        citizenshipDocument: req.files.citizenshipDocument?.[0]?.filename,
+        plusTwoDocument: req.files.plusTwoDocument?.[0]?.filename,
+        paymentStatus: "pending",
+      });
+
+      console.log("✅ Draft created:", draft._id);
+
+      res.json({ 
+        success: true, 
+        draftId: draft._id,
+        message: "Draft saved successfully"
+      });
+
+    } catch (err) {
+      console.error(" Draft error:", err);
+      res.status(500).json({ 
+        message: "Failed to save draft",
+        error: err.message
+      });
+    }
+  }
+);
+
+// ============================================
+// POST /api/forms - Final form submission (after payment)
+// ============================================
 router.post(
   '/',
   upload.fields([
@@ -38,68 +103,51 @@ router.post(
       console.log('Received form data:', formData);
       console.log('Received files:', req.files);
 
-      // Assign file names to the correct fields
+      // Assign file names
       formData.photo = req.files['photo']?.[0]?.filename || null;
       formData.plusTwoDocument = req.files['plusTwoDocument']?.[0]?.filename || null;
       formData.citizenshipDocument = req.files['citizenshipDocument']?.[0]?.filename || null;
 
       const savedForm = await new ExamForm(formData).save();
+      
+      console.log('✅ Form saved:', savedForm._id);
+      
       res.status(201).json(savedForm);
     } catch (err) {
-      console.error('Error saving form:', err);
-      res.status(500).json({ message: 'Error saving form', error: err.message });
-    }
-  }
-);
-
-// examFormRoutes.js
-router.post(
-  "/draft",
-  
-  upload.fields([
-    { name: "photo", maxCount: 1 },
-    { name: "plusTwoDocument", maxCount: 1 },
-    { name: "citizenshipDocument", maxCount: 1 },
-  ]),
-  async (req, res) => {
-    console.log("hit /draft");           // sanity check
-    console.log("files", req.files);     // see if multer parsed
-    console.log("body", req.body);       // see if JSON.parse fails
-    try {
-      const parsed = JSON.parse(req.body.data || "{}");
-
-      // build the record the same way you do in the normal POST /
-      const draft = await ExamForm.create({
-        ...parsed,
-        photo: req.files["photo"]?.[0]?.filename || null,
-        plusTwoDocument: req.files["plusTwoDocument"]?.[0]?.filename || null,
-        citizenshipDocument: req.files["citizenshipDocument"]?.[0]?.filename || null,
-        status: "payment-pending",
+      console.error('❌ Error saving form:', err);
+      res.status(500).json({ 
+        message: 'Error saving form', 
+        error: err.message 
       });
-      res.json({ draftId: draft._id, productId: draft._id });
-    } catch (e) {
-      console.error("draft error", e);
-      res.status(500).json({ message: e.message });
     }
   }
 );
-// GET all forms for admin
+
+// ============================================
+// GET /api/forms - Get all forms (Admin)
+// ============================================
 router.get('/', async (req, res) => {
   try {
     const forms = await ExamForm.find().sort({ createdAt: -1 });
     res.json(forms);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error fetching forms' });
   }
 });
 
+// ============================================
+// GET /api/forms/forms - Get forms with query
+// ============================================
 router.get('/forms', async (req, res) => {
   try {
     const { tuRegistrationNo } = req.query;
     let query = {};
+    
     if (tuRegistrationNo) {
       query.tuRegistrationNo = tuRegistrationNo;
     }
+    
     const forms = await ExamForm.find(query).sort({ createdAt: -1 });
     res.json(forms);
   } catch (err) {
@@ -108,19 +156,102 @@ router.get('/forms', async (req, res) => {
   }
 });
 
+// ============================================
+// GET /api/forms/:id - Get single form
+// ============================================
+router.get('/forms/:id', async (req, res) => {
+  try {
+    const form = await ExamForm.findById(req.params.id);
 
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
 
+    res.json(form);
+  } catch (err) {
+    console.error('Error fetching form by id:', err);
+
+    if (err.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid form ID' });
+    }
+
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+// ============================================
+// PATCH /api/forms/:id/complete-payment - Complete payment
+// ============================================
+router.patch('/forms/:id/complete-payment', async (req, res) => {
+  try {
+    const form = await ExamForm.findById(req.params.id);
+    
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
+
+    if (form.paymentStatus === 'completed') {
+      return res.status(400).json({ 
+        message: 'Payment already completed',
+        currentStatus: form.paymentStatus 
+      });
+    }
+
+    // Mark as completed
+    form.paymentStatus = 'completed';
+    
+    if (form.paymentDetails) {
+      form.paymentDetails.completedAt = new Date();
+      form.paymentDetails.status = 'completed';
+    }
+
+    await form.save();
+
+    // Send confirmation email
+    const mailOptions = {
+      from: 'bohoraghanindra@gmail.com',
+      to: form.contact.email,
+      subject: 'Exam Form Payment Successful - Tribhuvan University',
+      text: `Dear ${form.fullName},\n\nYour exam form has been submitted successfully and your payment has been confirmed.\n\nForm ID: ${form._id}\nPayment Status: Completed\n\nBest regards,\nTribhuvan University`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Email error:', error);
+      } else {
+        console.log('Confirmation email sent:', info.response);
+      }
+    });
+
+    res.json({ 
+      message: 'Payment completed successfully', 
+      form 
+    });
+
+  } catch (err) {
+    console.error('Error completing payment:', err);
+    res.status(500).json({ 
+      message: 'Error completing payment', 
+      error: err.message 
+    });
+  }
+});
+
+// ============================================
+// PATCH /api/forms/:id/approve - Approve payment (Admin)
+// ============================================
 router.patch('/forms/:id/approve', async (req, res) => {
   try {
     const form = await ExamForm.findById(req.params.id);
-    if (!form) return res.status(404).json({ message: 'Form not found' });
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
 
     form.paymentStatus = 'completed';
     await form.save();
 
     console.log('Sending email to:', form.contact.email);
 
-    // Send email
     const mailOptions = {
       from: 'bohoraghanindra@gmail.com',
       to: form.contact.email,
@@ -131,10 +262,16 @@ router.patch('/forms/:id/approve', async (req, res) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error('Email error:', error);
-        return res.status(500).json({ message: 'Form approved, but failed to send email', error: error.message });
+        return res.status(500).json({ 
+          message: 'Form approved, but failed to send email', 
+          error: error.message 
+        });
       } else {
         console.log('Email sent:', info.response);
-        return res.json({ message: 'Payment approved and email sent', form });
+        return res.json({ 
+          message: 'Payment approved and email sent', 
+          form 
+        });
       }
     });
 
@@ -144,10 +281,15 @@ router.patch('/forms/:id/approve', async (req, res) => {
   }
 });
 
+// ============================================
+// PATCH /api/forms/:id/reject - Reject payment (Admin)
+// ============================================
 router.patch('/forms/:id/reject', async (req, res) => {
   try {
     const form = await ExamForm.findById(req.params.id);
-    if (!form) return res.status(404).json({ message: 'Form not found' });
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
 
     form.paymentStatus = 'rejected';
     await form.save();
@@ -164,10 +306,16 @@ router.patch('/forms/:id/reject', async (req, res) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error('Email error:', error);
-        return res.status(500).json({ message: 'Form rejected, but failed to send email', error: error.message });
+        return res.status(500).json({ 
+          message: 'Form rejected, but failed to send email', 
+          error: error.message 
+        });
       } else {
         console.log('Rejection email sent:', info.response);
-        return res.json({ message: 'Form rejected and email sent', form });
+        return res.json({ 
+          message: 'Form rejected and email sent', 
+          form 
+        });
       }
     });
 
@@ -177,11 +325,15 @@ router.patch('/forms/:id/reject', async (req, res) => {
   }
 });
 
-
+// ============================================
+// POST /api/forms/:id/send-email - Send email
+// ============================================
 router.post('/forms/:id/send-email', async (req, res) => {
   try {
     const form = await ExamForm.findById(req.params.id);
-    if (!form) return res.status(404).json({ message: 'Form not found' });
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
 
     const mailOptions = {
       from: 'bohoraghanindra@gmail.com',
@@ -193,7 +345,10 @@ router.post('/forms/:id/send-email', async (req, res) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error('Email error:', error);
-        return res.status(500).json({ message: 'Email failed', error: error.message });
+        return res.status(500).json({ 
+          message: 'Email failed', 
+          error: error.message 
+        });
       } else {
         console.log('Email sent:', info.response);
         res.json({ message: 'Email sent successfully' });
@@ -205,44 +360,73 @@ router.post('/forms/:id/send-email', async (req, res) => {
   }
 });
 
-// POST /api/form-config
-router.post("/form-config", async (req, res) => {
-  const { formType, startTime, endTime } = req.body;
-  await FormConfig.findOneAndUpdate(
-    { formType },
-    { startTime, endTime },
-    { upsert: true }
-  );
-  res.send({ message: "Config saved." });
-});
-
-// GET /api/form-config?formType=examForm
-router.get("/form-config", async (req, res) => {
-  const config = await FormConfig.findOne({ formType: req.query.formType });
-  if (!config) return res.status(404).json({ message: "Config not found" });
-  res.json(config);
-});
-// GET single exam form by ID
-router.get('/forms/:id', async (req, res) => {
+// ============================================
+// PUT /api/forms/:id - Update form (requires auth)
+// ============================================
+router.put("/forms/:id", auth, async (req, res) => {
   try {
     const form = await ExamForm.findById(req.params.id);
 
     if (!form) {
-      return res.status(404).json({ message: 'Form not found' });
+      return res.status(404).json({ message: "Form not found" });
     }
+
+    if (form.paymentStatus === "completed") {
+      return res.status(403).json({ message: "Form locked after payment" });
+    }
+
+    if (form.studentId.toString() !== req.user.userId.toString()) {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    Object.assign(form, req.body);
+    await form.save();
 
     res.json(form);
   } catch (err) {
-    console.error('Error fetching form by id:', err);
-
-    // handle invalid ObjectId
-    if (err.name === 'CastError') {
-      return res.status(400).json({ message: 'Invalid form ID' });
-    }
-
+    console.error(err);
     res.status(500).json({ message: 'Server Error' });
   }
 });
 
+// ============================================
+// Form Config Routes
+// ============================================
+
+// POST /api/forms/form-config - Set form config
+router.post("/form-config", async (req, res) => {
+  try {
+    const { formType, startTime, endTime } = req.body;
+    
+    await FormConfig.findOneAndUpdate(
+      { formType },
+      { startTime, endTime },
+      { upsert: true }
+    );
+    
+    res.send({ message: "Config saved." });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error saving config' });
+  }
+});
+
+// GET /api/forms/form-config?formType=examForm - Get form config
+router.get("/form-config", async (req, res) => {
+  try {
+    const config = await FormConfig.findOne({ formType: req.query.formType });
+    
+    if (!config) {
+      return res.status(404).json({ message: "Config not found" });
+    }
+    
+    res.json(config);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error fetching config' });
+  }
+});
 
 module.exports = router;
+
+

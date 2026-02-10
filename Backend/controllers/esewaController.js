@@ -1,108 +1,176 @@
-const payment = require("../models/Payment.js");
+// // controllers/esewaController.js
+// const Payment =require("../models/Payment.js") ;
+// const ExamForm =require("../models/ExamForm.js");
+// const{ getEsewaPaymentHash, verifyEsewaPayment }=require( "../utils/esewa.js");
 
-const EsewaInitiatePayment = async (req, res) => {
+//  const initiateEsewaPayment = async (req, res) => {
+//   const { formId, amount } = req.body;
+
+//   const form = await ExamForm.findById(formId);
+//   if (!form) return res.status(404).json({ error: "Form not found" });
+
+//   const payment = await Payment.create({
+//     transaction_uuid: crypto.randomUUID(),
+//     productId: formId,
+//     amount,
+//     paymentGateway: "esewa",
+//   });
+
+//   const paymentData = getEsewaPaymentHash({
+//     amount,
+//     transaction_uuid: payment.transaction_uuid,
+//   });
+
+//   res.json({ paymentData });
+// };
+
+// const esewaSuccess = async (req, res) => {
+//   try {
+//     const decoded = await verifyEsewaPayment(req.query.data);
+
+//     const payment = await Payment.findOne({ transaction_uuid: decoded.transaction_uuid });
+//     if (!payment) throw new Error("Payment not found");
+
+//     payment.status = "success";
+//     payment.verificationPayload = decoded;
+//     await payment.save();
+
+//     await ExamForm.findByIdAndUpdate(payment.productId, {
+//       paymentStatus: "completed",
+//     });
+
+//     res.redirect("http://localhost:5173/payment-success");
+//   } catch (err) {
+//     res.redirect("http://localhost:5173/payment-failed");
+//   }
+// };
+// module.exports={initiateEsewaPayment,esewaSuccess}
+
+
+
+// controllers/esewaController.js
+const crypto = require("crypto");
+const Payment = require("../models/Payment.js");
+const ExamForm = require("../models/ExamForm.js");
+// const { getEsewaPaymentHash, verifyEsewaPayment } = require("../utils/esewa.js");
+const { getEsewaPaymentPayload , verifyEsewaPayment } = require("../utils/esewa.js");
+
+
+const initiateEsewaPayment = async (req, res) => {
   try {
-    // const userId = req.user.id; // Get userId from the request
-    const { EsewaPaymentGateway } = await import("esewajs"); // Dynamic Import
-    const {campaignId, amount, productId } = req.body;
-    
-// console.log('userid',userId);
+    const { formId ,amount} = req.body;
 
-    // Validate inputs
-    if (!campaignId || !amount || !productId) {
-      return res.status(400).json({ error: "Missing required fields (campaignId, amount, productId)" });
-    }
-    if (!campaignId) {
-      return res.status(400).json({ error: "Campaign ID is required" });
+    if (!formId||!amount) {
+      return res.status(400).json({ error: "formId is required" });
     }
 
-    const reqPayment = await EsewaPaymentGateway(
-      amount, 0, 0, 0,
-      productId,
-    
-      process.env.MERCHANT_ID,
-      process.env.SECRET,
-      process.env.SUCCESS_URL,
-      process.env.FAILURE_URL,
-      process.env.ESEWAPAYMENT_URL
-    );
-
-    if (!reqPayment || reqPayment.status !== 200) {
-      return res.status(400).json({ error: "Error sending payment data" });
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ error: "Unauthorized - Please login" });
     }
 
-    // Save transaction to database
-    const transaction = new payment({
-      campaignId: campaignId,
-      product_id: productId,
-      amount: amount,
-      status: "Pending",
-    //   userId:userId // Save userId with the transaction
+    const form = await ExamForm.findById(formId);
+    if (!form) {
+      return res.status(404).json({ error: "Form not found" });
+    }
+
+    if (form.studentId.toString() !== req.user.id) {
+      return res.status(403).json({ error: "This form doesn't belong to you" });
+    }
+
+    if (form.paymentStatus === "completed") {
+      return res.status(400).json({ error: "Payment already completed" });
+    }
+
+    // ✅ BACKEND decides amount
+    // const amount = form.examFee || 200; // example
+
+    const transaction_uuid = crypto.randomUUID();
+
+   await Payment.create({
+          transaction_uuid,
+      productId: formId,
+      amount,
+      paymentGateway: "esewa",
+      status: "pending",
     });
 
-    await transaction.save();
-    console.log("Transaction initiated successfully");
+    // ✅ eSewa mapping happens HERE (BACKEND)
+    const paymentData = getEsewaPaymentPayload({
+      amount: amount.toString(),
+      transaction_uuid,
+    });
+// console.log("transaction",payment.transaction_uuid);
 
-    if (!reqPayment.request?.res?.responseUrl) {
-      return res.status(400).json({ error: "Invalid payment gateway response" });
-    }
+    return res.json({ paymentData });
 
-    return res.json({ url: reqPayment.request.res.responseUrl });
-
-  } catch (error) {
-    console.error("Esewa payment initiation error:", error);
-    return res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error("eSewa initiation error:", err);
+    res.status(500).json({
+      error: "Failed to initiate payment",
+      message: err.message,
+    });
   }
-
-
-   
 };
 
-const paymentStatus = async (req, res) => {
-  try {
-    const { EsewaCheckStatus } = await import("esewajs"); // Dynamic Import
-    const { product_id} = req.body;
- // Get userId from the request
-    // const userId = req.user.id; // Get userId from the request
-    const transaction = await payment.findOne({ product_id});
 
-    if (!transaction) {
-      return res.status(404).json({ message: "Transaction not found" });
+const esewaSuccess = async (req, res) => {
+  try {
+    console.log("eSewa success callback hit");
+    console.log("Query params:", req.query);
+
+    if (!req.query.data) {
+      console.error("No data parameter in eSewa callback");
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed?reason=no_data`);
     }
 
-    const paymentStatusCheck = await EsewaCheckStatus(
-      transaction.amount,
-      transaction.product_id,
-      //  transaction.userId,
-      process.env.MERCHANT_ID,
-      process.env.ESEWAPAYMENT_STATUS_CHECK_URL
+    // Verify the payment with eSewa
+    const decoded = await verifyEsewaPayment(req.query.data);
+    console.log("Payment verified:", decoded);
+
+    // Find the payment record
+    const payment = await Payment.findOne({ transaction_uuid: decoded.transaction_uuid });
+    if (!payment) {
+      console.error("Payment not found:", decoded.transaction_uuid);
+      return res.redirect(`${process.env.FRONTEND_URL}/payment-failed?reason=payment_not_found`);
+    }
+
+    // Update payment status
+    payment.status = "success";
+    payment.verificationPayload = decoded;
+    await payment.save();
+
+    console.log("Payment status updated to success");
+
+    // Update exam form payment status
+    const form = await ExamForm.findByIdAndUpdate(
+      payment.productId,
+      { paymentStatus: "completed" },
+      { new: true }
     );
 
-    if (!paymentStatusCheck || paymentStatusCheck.status !== 200) {
-      return res.status(400).json({ message: "Failed to fetch transaction status" });
-    }
-   // Log the payment status from Esewa
-   console.log("Payment status from gateway:", paymentStatusCheck.data.status);
+    console.log("Form payment status updated:", form._id);
 
-    
-  // Update the transaction status
-  if (paymentStatusCheck.data.status === "COMPLETE") {
-    transaction.status = "Success";
-  } else if (paymentStatusCheck.data.status === "Failed") {
-    transaction.status = "FAILED";
-  } else {
-    transaction.status = "Pending"; // Default case for unknown status
-  }
+    // Redirect to success page with form ID
+    res.redirect(`${process.env.FRONTEND_URL}/payment-success?formId=${payment.productId}`);
 
-  // Save the updated status in the database
-  await transaction.save();
-
-    res.status(200).json({ message: "Transaction status updated successfully", status: transaction.status });
-
-  } catch (error) {
-    console.error("Error updating transaction status:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+  } catch (err) {
+    console.error("eSewa success callback error:", err);
+    res.redirect(`${process.env.FRONTEND_URL}/payment-failed?reason=verification_failed`);
   }
 };
 
-module.exports = { EsewaInitiatePayment, paymentStatus };
+const esewaFailure = async (req, res) => {
+  console.log("eSewa failure callback hit");
+  console.log("Query params:", req.query);
+
+  // You might want to update payment status to failed here
+  // if you have the transaction_uuid in the query params
+
+  res.redirect(`${process.env.FRONTEND_URL}/payment-failed?reason=user_cancelled`);
+};
+
+module.exports = {
+  initiateEsewaPayment,
+  esewaSuccess,
+  esewaFailure
+};

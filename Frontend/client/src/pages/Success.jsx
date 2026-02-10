@@ -1,63 +1,59 @@
-import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { base64Decode } from "esewajs";
+
+
+// import { useEffect } from "react";
+// import axios from "axios";
+// import { useLocation } from "react-router-dom";
+
+// export default function Success() {
+//   const location = useLocation();
+//   const query = new URLSearchParams(location.search);
+//   const productId = query.get("product_code"); // Or transactionId
+
+//   useEffect(() => {
+//     const verifyPayment = async () => {
+//       try {
+//         await axios.post("http://localhost:5000/api/payment/verify-payment", {
+//           transactionId: productId,
+//           productId: productId
+//         });
+//         alert("Payment successful!");
+//       } catch (err) {
+//         alert("Payment verification failed.",err);
+//       }
+//     };
+//     verifyPayment();
+//   }, [productId]);
+
+//   return <h2>Payment Successful! Redirecting...</h2>;
+// }
+
+
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
-import { toast } from "react-toastify";
-import "./success.css"; // Import CSS file
 
-const Success = () => {
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const queryParams = new URLSearchParams(location.search);
-  const token = queryParams.get("data");
-  console.log("Token from URL:", token);
-  
-  const decoded = base64Decode(token);
-  console.log("Decoded token:", decoded);
-
-  const verifyPaymentAndUpdateStatus = async () => {
-    try {
-      const response = await axios.post("http://localhost:5000/payment-status", {
-        product_id: decoded.transaction_uuid,
-      });
-      if (response.status === 200) {
-        setIsLoading(false);
-        setIsSuccess(true);
-      }
-    } catch (error) {
-      setIsLoading(false);
-      console.error("Error initiating payment:", error);
-    }
-  };
+export default function Success() {
+  const { search } = useLocation();
 
   useEffect(() => {
-    verifyPaymentAndUpdateStatus();
-  }, []);
+    const verifyPayment = async () => {
+      const params = new URLSearchParams(search);
+      const data = params.get("data"); // base64 encoded eSewa data
 
-  if (isLoading && !isSuccess) return <div className="loading">Loading...</div>;
-  if (!isLoading && !isSuccess)
-    return (
-      <div className="error-container">
-        <h1>Oops! Error occurred on confirming payment</h1>
-        <h2>We will resolve it soon.</h2>
-        <button onClick={() => navigate("/")} className="go-home-button">
-          Go to Homepage
-        </button>
-      </div>
-    );
+      if (!data) return;
 
-  return (
-    <div className="success-container">
-      <h1>Payment Successful!</h1>
-      <p>Thank you for your payment. Your transaction was successful.</p>
-      <button onClick={() => navigate("/fundraiser")} className="go-home-button">
-        Go to HomePage
-      </button>
-    </div>
-  );
-};
+      try {
+        const res = await axios.get(`http://localhost:5000/complete-esewa?data=${data}`);
+        alert("Payment verified successfully!");
+        console.log(res.data);
+      } catch (err) {
+        console.error(err);
+        alert("Payment verification failed");
+      }
+    };
 
-export default Success;
+    verifyPayment();
+  }, [search]);
+
+  return <h2>Payment processing...</h2>;
+}

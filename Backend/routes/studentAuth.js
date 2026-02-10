@@ -110,7 +110,7 @@ router.post("/login", async (req, res) => {
 
     res.json({
       token,
-      student: { id: student._id, name: student.name, email: student.email, role: student.role }
+      student: { id:student._id, name: student.name, email: student.email, role: student.role }
     });
   } catch (err) {
     console.error(err);

@@ -83,6 +83,7 @@ function auth(...allowedRoles) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = decoded; // {id, role}
+console.log(req.user);
 
       // If roles are specified, check them
       if (allowedRoles.length && !allowedRoles.includes(decoded.role)) {
