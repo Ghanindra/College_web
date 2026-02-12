@@ -5,9 +5,19 @@ import './index.css'
 import { ToastContainer } from 'react-toastify';
 import App from './App.jsx'
 import { AuthProvider } from "./context/AuthProvider";
+
+// --- ADD THIS AT THE TOP ---
+if (!window.grecaptcha) {
+  window.grecaptcha = {
+    ready: (cb) => cb(),
+    execute: () => "",
+    getResponse: () => "",
+  };
+}
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-        <AuthProvider>
+    <> 
+     <AuthProvider>
               <BrowserRouter>
                 <App />
                 </BrowserRouter>
@@ -16,5 +26,7 @@ createRoot(document.getElementById('root')).render(
  
     
     <ToastContainer />
+    </>
+       
   </StrictMode>,
 )

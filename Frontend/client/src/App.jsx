@@ -118,8 +118,10 @@ import ViceChancellorMessage from "./pages/ViceChancellorMessage";
 import Contact from "./pages/Contact";
 import AboutUs from "./pages/AboutUs";
 import Research from "./pages/Research";
-import Success from "./pages/Success";
-import Failure from "./pages/Failure";
+// import Success from "./pages/Success";
+// import Failure from "./pages/Failure";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentFailed from "./pages/PaymentFailed";
 import StudentDashboard from "./pages/StudentDashboard";
 // Admin dashboard pages
 import Notices from "./pages/Notice";
@@ -156,8 +158,10 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/research" element={<Research />} />
-        <Route path="/success" element={<Success />} />
-        <Route path="/failure" element={<Failure />} />
+        {/* <Route path="/success" element={<Success />} />
+        <Route path="/failure" element={<Failure />} /> */}
+           <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failed" element={<PaymentFailed />} />
 <Route
   path="/student"
   element={

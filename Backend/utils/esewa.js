@@ -1,32 +1,43 @@
 
 
 
-// // utils/esewa.js
+
 // const crypto = require("crypto");
 // const axios = require("axios");
 
+// const REQUIRED_SIGN_FIELDS = [
+//   "total_amount",
+//   "transaction_uuid",
+//   "product_code",
+// ];
 
 // function getEsewaPaymentPayload({ amount, transaction_uuid }) {
+//   if (!process.env.ESEWA_SECRET_KEY) {
+//     throw new Error("ESEWA_SECRET_KEY missing in env");
+//   }
+
 //   const payload = {
-//     amount: amount.toString(),
+//     amount: String(amount),
 //     tax_amount: "0",
-//     service_charge: "0",
 //     product_service_charge: "0",
 //     product_delivery_charge: "0",
-//     total_amount: amount.toString(),
-//     transaction_uuid,
-//     product_code: process.env.ESEWA_PRODUCT_CODE, // EPAYTEST
-//     success_url: "http://localhost:5000/esewa/success",
-//     failure_url: "http://localhost:5000/esewa/failure",
+//     total_amount: String(amount),
+//     transaction_uuid, // NEVER touch it
+//     product_code: process.env.ESEWA_PRODUCT_CODE || "EPAYTEST",
+//     success_url: process.env.ESEWA_SUCCESS_URL,
+//     failure_url: process.env.ESEWA_FAILURE_URL,
 //   };
 
-//   const signedFieldNames = 
-//     "total_amount,transaction_uuid,product_code,amount,tax_amount,service_charge,product_service_charge,product_delivery_charge";
-
-//   const signatureString = signedFieldNames
-//     .split(",")
-//     .map((key) => `${key}=${payload[key]}`)
+//   // 🔒 Build signature string STRICTLY
+//   const signatureString = REQUIRED_SIGN_FIELDS
+//     .map((field) => `${field}=${payload[field]}`)
 //     .join(",");
+
+//   console.log("🔹 Signature Input String:", signatureString);
+//  console.log(
+//   "SIGN STRING JSON:",
+//   JSON.stringify(signatureString)
+// );
 
 //   const signature = crypto
 //     .createHmac("sha256", process.env.ESEWA_SECRET_KEY)
@@ -35,18 +46,23 @@
 
 //   return {
 //     ...payload,
-//     signed_field_names: signedFieldNames,
+//     signed_field_names: REQUIRED_SIGN_FIELDS.join(","),
 //     signature,
+    
 //   };
+ 
 // }
 
-
-// // module.exports = { getEsewaPaymentPayload };
-
 // async function verifyEsewaPayment(encodedData) {
-//   const decoded = JSON.parse(Buffer.from(encodedData, "base64").toString("utf8"));
+//   const decoded = JSON.parse(
+//     Buffer.from(encodedData, "base64").toString("utf8")
+//   );
 
-//   const verifyUrl = `${process.env.ESEWA_GATEWAY_URL}/api/epay/transaction/status/?product_code=${process.env.ESEWA_PRODUCT_CODE}&total_amount=${decoded.total_amount}&transaction_uuid=${decoded.transaction_uuid}`;
+//   const verifyUrl =
+//     `${process.env.ESEWA_GATEWAY_URL}/api/epay/transaction/status/` +
+//     `?product_code=${decoded.product_code}` +
+//     `&total_amount=${decoded.total_amount}` +
+//     `&transaction_uuid=${decoded.transaction_uuid}`;
 
 //   const response = await axios.get(verifyUrl);
 
@@ -58,59 +74,70 @@
 // }
 
 // module.exports = {
-//  getEsewaPaymentPayload ,
-//   verifyEsewaPayment
+//   getEsewaPaymentPayload,
+//   verifyEsewaPayment,
 // };
 
-// utils/esewa.js
+
 const crypto = require("crypto");
 const axios = require("axios");
-
-/**
- * Generate eSewa payment payload
- * All fields included, but signature only for 3 fields
- */
-// backend: utils/esewa.js
 function getEsewaPaymentPayload({ amount, transaction_uuid }) {
-  const payload = {
-    amount: amount.toString(),
-    tax_amount: "0",
-    product_service_charge: "0",
-    product_delivery_charge: "0",
-    total_amount: amount.toString(),
-    transaction_uuid:transaction_uuid,
-    product_code: process.env.ESEWA_PRODUCT_CODE,
-    // success_url: "http://localhost:5000/esewa/success",
-    // failure_url: "http://localhost:5000/esewa/failure",
-  };
+  // const payload = {
+  //   amount: String(amount),
+  //   tax_amount: "0",
+  //   product_service_charge: "0",
+  //   product_delivery_charge: "0",
+  //   total_amount: amount.toFixed(),
+  //   transaction_uuid,
+  //   product_code: "EPAYTEST",
+  //   // success_url: process.env.ESEWA_SUCCESS_URL,
+  //   // failure_url: process.env.ESEWA_FAILURE_URL,
+  //    success_url: `${process.env.BACKEND_URL}/esewa/success`,
+  //   failure_url: `${process.env.BACKEND_URL}/esewa/failure`,
+  // };
+const payload = {
+  amount: amount.toFixed(2), // "200.00"
+  tax_amount: "0.00",
+  product_service_charge: "0.00",
+  product_delivery_charge: "0.00",
+  total_amount: amount.toFixed(2), // "200.00"
+  transaction_uuid,
+  product_code: "EPAYTEST",
+  success_url: `${process.env.BACKEND_URL}/esewa/success`,
+  failure_url: `${process.env.BACKEND_URL}/esewa/failure`,
+};
 
-  const signedFieldNames = "total_amount,transaction_uuid,product_code,amount,tax_amount,product_service_charge,product_delivery_charge";
+  const signed_field_names =
+    "total_amount,transaction_uuid,product_code";
 
-  const signatureString = signedFieldNames
-    .split(",")
-    .map((key) => `${key}=${payload[key]}`)
-    .join(",");
+ 
+const signString = signed_field_names
+  .split(",")
+  .map((field) => `${field}=${payload[field]}`)
+  .join(",");
 
   const signature = crypto
-    .createHmac("sha256", process.env.ESEWA_SECRET_KEY)
-    .update(signatureString)
+    .createHmac("sha256", process.env.ESEWA_SECRET_KEY.trim())
+    .update(signString)
     .digest("base64");
 
   return {
     ...payload,
-    signed_field_names: signedFieldNames,
+    signed_field_names,
     signature,
   };
 }
 
-
-/**
- * Verify eSewa payment
- */
 async function verifyEsewaPayment(encodedData) {
-  const decoded = JSON.parse(Buffer.from(encodedData, "base64").toString("utf8"));
+  const decoded = JSON.parse(
+    Buffer.from(encodedData, "base64").toString("utf8")
+  );
 
-  const verifyUrl = `${process.env.ESEWA_GATEWAY_URL}/api/epay/transaction/status/?product_code=${process.env.ESEWA_PRODUCT_CODE}&total_amount=${decoded.total_amount}&transaction_uuid=${decoded.transaction_uuid}`;
+  const verifyUrl =
+    `${process.env.ESEWA_GATEWAY_URL}/api/epay/transaction/status/` +
+    `?product_code=${decoded.product_code}` +
+    `&total_amount=${decoded.total_amount}` +
+    `&transaction_uuid=${decoded.transaction_uuid}`;
 
   const response = await axios.get(verifyUrl);
 

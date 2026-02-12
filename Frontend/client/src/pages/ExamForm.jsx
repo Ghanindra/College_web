@@ -31,69 +31,14 @@ export default function ExamForm() {
     checkFormStatus();
   }, []);
 
-  // Initiate eSewa payment - SIMPLIFIED VERSION
-  // const initiateEsewa = ({ formId, amount }) => {
-  //   console.log("🔵 STEP 3: Starting eSewa initiation...");
-  //   console.log("FormID:", formId);
-  //   console.log("Amount:", amount);
-  //   console.log("🔹 Sending token:", token());
-
-  //   axios
-  //     .post(
-  //       "http://localhost:5000/esewa/initiate",
-  //       { formId, amount },
-  //       { headers: { Authorization: `Bearer ${token()}` } }
-  //     )
-  //     .then((res) => {
-  //       console.log("🟢 STEP 4: eSewa API response received:", res.data);
-        
-  //       const data = res.data.paymentData;
-  //       // console.log("data",data);
-        
-        
-  //       if (!data) {
-  //         console.error("❌ No paymentData in response");
-  //         toast.error("Invalid payment data received");
-  //         return;
-  //       }
-
-  //       console.log("🟢 STEP 5: Creating form element...");
-  //       const form = document.createElement("form");
-  //       form.method = "POST";
-  //       form.action = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
-
-  //       Object.entries(data).forEach(([key, value]) => {
-  //         const input = document.createElement("input");
-  //         input.type = "hidden";
-  //         input.name = key;
-  //         input.value = value.toString();
-  //         form.appendChild(input);
-  //       });
-
-  //       document.body.appendChild(form);
-        
-  //       console.log(" STEP 6: Submitting form to eSewa...");
-  //       console.log("Form data:", data);
-        
-  //       form.submit();
-        
-  //       console.log(" Form submitted - should redirect now");
-  //     })
-  //     .catch((err) => {
-  //       console.error(" eSewa initiation error:", err);
-  //       console.error("Error response:", err.response?.data);
-  //       toast.error(err.response?.data?.error || "Failed to initiate eSewa payment");
-  //     });
-  // };
-// Initiate eSewa payment - DEBUG FRIENDLY
-// Initiate eSewa payment safely
-const initiateEsewa = ({ formId, amount }) => {
-  console.log("🔵 STEP 3: Starting eSewa initiation...");
+  
+// Replace the initiateEsewa function with this corrected version:
+const initiateEsewa =async ({ formId, amount }) => {
+  console.log("🔵 Starting eSewa initiation...");
   console.log("FormID:", formId);
   console.log("Amount:", amount);
-  console.log("🔹 Sending token:", token());
 
-  axios
+  await axios
     .post(
       "http://localhost:5000/esewa/initiate",
       { formId, amount },
@@ -102,69 +47,36 @@ const initiateEsewa = ({ formId, amount }) => {
     .then((res) => {
       const data = res.data.paymentData;
 
-      if (!data) {
-        console.error("❌ No paymentData received");
+      if (!data || !data.signature) {
+        console.error("❌ Invalid payment data received");
         toast.error("Invalid payment data received");
         return;
       }
 
-      console.log("🟢 STEP 4: eSewa API response received:", data);
-
-      // Make sure transaction_uuid exists
-      if (!data.transaction_uuid) {
-        console.error("❌ transaction_uuid is missing! Signature will fail");
-        toast.error("transaction_uuid missing. Cannot proceed to eSewa");
-        return;
-      }
-
-      // Log all values in signed_field_names
-      console.log("🔹 Form ready to submit. Data being sent to eSewa:");
-      data.signed_field_names.split(",").forEach((key) => {
-        console.log(`${key} =`, data[key]);
-      });
-
-      // --- PAUSE SUBMISSION --- 
-      // Create form but don't submit yet
+      console.log("🟢 eSewa payload received:", data);
+// Save draftId and token in localStorage before redirect
+    // localStorage.setItem("draftId", formId);
+    // localStorage.setItem("token", token());
+      // Create form element
       const form = document.createElement("form");
       form.method = "POST";
       form.action = "https://rc-epay.esewa.com.np/api/epay/main/v2/form";
 
-      // Append inputs in exact order of signed_field_names
-      data.signed_field_names.split(",").forEach((key) => {
-  const input = document.createElement("input");
-  input.type = "hidden";
-  input.name = key;
-  input.value =
-    typeof data[key] === "string" ? data[key].trim() : data[key] != null ? data[key].toString() : "";
-  form.appendChild(input);
-});
-
-
-      // Optional: append remaining fields like signature
-      if (data.signature) {
-        const sigInput = document.createElement("input");
-        sigInput.type = "hidden";
-        sigInput.name = "signature";
-        sigInput.value = data.signature.trim();
-        form.appendChild(sigInput);
-      }
+      // Add all fields exactly as received from backend
+      Object.entries(data).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value.toString().trim();
+        form.appendChild(input);
+      });
 
       document.body.appendChild(form);
-console.log("Final form values ready for submission:");
-[...form.elements].forEach((el) => {
-  if (el.name) console.log(el.name, "=>", `"${el.value}"`);
-});
-      console.log(
-        "✅ Form built successfully. Check console above. Ready to submit manually."
-      );
 
-      // TEMPORARY: wait for confirmation before submitting
-      if (window.confirm("Submit to eSewa now? Check console logs first.")) {
-        form.submit();
-        console.log("🟢 Form submitted to eSewa. Redirecting...");
-      } else {
-        console.log("⏸ Submission paused for inspection. Fix signature if needed.");
-      }
+      console.log("🟢 Submitting form to eSewa...");
+      console.log("Form data:", Object.fromEntries(new FormData(form)));
+
+      form.submit();
     })
     .catch((err) => {
       console.error("❌ eSewa initiation error:", err);
@@ -172,7 +84,6 @@ console.log("Final form values ready for submission:");
       toast.error(err.response?.data?.error || "Failed to initiate eSewa payment");
     });
 };
-
   // Formik setup
   const formik = useFormik({
     initialValues: {

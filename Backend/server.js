@@ -11,8 +11,13 @@ const examFormRoutes = require('./routes/examFormRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const examRoutineRoutes = require('./routes/examRoutineRoutes');
 const contactRoutes = require('./routes/contactRoutes');
-
-const { initiateEsewaPayment, esewaSuccess }=require( "./controllers/esewaController.js");
+const esewaRoutes = require('./routes/esewaRoutes');
+const { initiateEsewaPayment, esewaSuccess,esewaFailure }=require( "./controllers/esewaController.js");
+// const {
+//   testEsewaForm,
+//   testEsewaSuccess,
+//   testEsewaFailure,
+// } = require("./controllers/esewaTestController");
 
 
 
@@ -47,6 +52,7 @@ app.use("/api/stats", require("./routes/dashboardStatsRoutes"));
 app.use("/api/student", require("./routes/studentAuth"));
 app.use("/api/student", require("./routes/studentDashboard")); // protected route example
 // app.use("/api/payment", esewaRoutes);
+// app.use('/esewa', esewaRoutes);
 // Function to create default admin
 async function createDefaultAdmin() {
   try {
@@ -63,8 +69,13 @@ async function createDefaultAdmin() {
     console.error(" Error creating default admin:", err);
   }
 }
+
+// app.get("/test", testEsewaForm);
+// app.get("/test/success", testEsewaSuccess);
+// app.get("/test/failure", testEsewaFailure);
 app.post("/esewa/initiate",auth(), initiateEsewaPayment);
 app.get("/esewa/success",esewaSuccess);
+app.get("/esewa/failure",esewaFailure);
 
 // app.post("/payment-status", verifyEsewaPayment);
 // app.get("/complete-esewa", completeEsewaPayment);
