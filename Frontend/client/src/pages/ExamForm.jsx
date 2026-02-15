@@ -35,8 +35,8 @@ export default function ExamForm() {
 // Replace the initiateEsewa function with this corrected version:
 const initiateEsewa =async ({ formId, amount }) => {
   console.log("🔵 Starting eSewa initiation...");
-  console.log("FormID:", formId);
-  console.log("Amount:", amount);
+  // console.log("FormID:", formId);
+  // console.log("Amount:", amount);
 
   await axios
     .post(
@@ -73,8 +73,8 @@ const initiateEsewa =async ({ formId, amount }) => {
 
       document.body.appendChild(form);
 
-      console.log("🟢 Submitting form to eSewa...");
-      console.log("Form data:", Object.fromEntries(new FormData(form)));
+      // console.log("🟢 Submitting form to eSewa...");
+      // console.log("Form data:", Object.fromEntries(new FormData(form)));
 
       form.submit();
     })
@@ -172,112 +172,197 @@ const initiateEsewa =async ({ formId, amount }) => {
         )
         .min(1, "At least one academic record is required"),
     }),
-    onSubmit: async (values, { setSubmitting, resetForm }) => {
-      console.log("🔵 STEP 1: Form submission started");
-      console.log("Payment Method:", values.paymentMethod);
+  //   onSubmit: async (values, { setSubmitting, resetForm }) => {
+  //     // console.log("🔵 STEP 1: Form submission started");
+  //     // console.log("Payment Method:", values.paymentMethod);
       
-      try {
-        // Format subjects
-        const formattedSubjects = values.subjects
-          .split(",")
-          .map((t, i) => ({ code: `SUB${i + 1}`, title: t.trim() }));
+  //     try {
+  //       // Format subjects
+  //       const formattedSubjects = values.subjects
+  //         .split(",")
+  //         .map((t, i) => ({ code: `SUB${i + 1}`, title: t.trim() }));
 
-        // Prepare FormData
-        const formData = new FormData();
+  //       // Prepare FormData
+  //       const formData = new FormData();
 
-        const payload = {
-          fullName: values.fullName,
-          nationality: values.nationality,
-          dob: values.dob,
-          fatherName: values.fatherName,
-          address: {
-            province: values.province,
-            district: values.district,
-            municipality: values.municipality,
-            ward: values.ward,
-          },
-          contact: { phone: values.phone, email: values.email },
-          academicRecords: values.academicRecords,
-          tuRegistrationNo: values.tuRegistrationNo,
-          semester: values.semester,
-          year: values.year,
-          batch: values.batch,
-          collegeName: values.collegeName,
-          examCenter: values.examCenter,
-          course: values.course,
-          subjects: formattedSubjects,
-          paymentDetails: {
-            amount: Number(values.paymentAmount),
-            method: values.paymentMethod,
-          },
-        };
+  //       const payload = {
+  //         fullName: values.fullName,
+  //         nationality: values.nationality,
+  //         dob: values.dob,
+  //         fatherName: values.fatherName,
+  //         address: {
+  //           province: values.province,
+  //           district: values.district,
+  //           municipality: values.municipality,
+  //           ward: values.ward,
+  //         },
+  //         contact: { phone: values.phone, email: values.email },
+  //         academicRecords: values.academicRecords,
+  //         tuRegistrationNo: values.tuRegistrationNo,
+  //         semester: values.semester,
+  //         year: values.year,
+  //         batch: values.batch,
+  //         collegeName: values.collegeName,
+  //         examCenter: values.examCenter,
+  //         course: values.course,
+  //         subjects: formattedSubjects,
+  //         paymentDetails: {
+  //           amount: Number(values.paymentAmount),
+  //           method: values.paymentMethod,
+  //         },
+  //       };
 
-        formData.append("data", JSON.stringify(payload));
-        formData.append("photo", values.photo);
-        formData.append("citizenshipDocument", values.citizenshipDocument);
-        formData.append("plusTwoDocument", values.plusTwoDocument);
+  //       formData.append("data", JSON.stringify(payload));
+  //       formData.append("photo", values.photo);
+  //       formData.append("citizenshipDocument", values.citizenshipDocument);
+  //       formData.append("plusTwoDocument", values.plusTwoDocument);
 
-        console.log("🔵 STEP 2: Saving draft...");
+  //       // console.log("🔵 STEP 2: Saving draft...");
         
-        // Step 1: Save draft
-        const { data: draftResponse } = await axios.post(
-          "http://localhost:5000/api/forms/draft",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: `Bearer ${token()}`,
-            },
-          }
-        );
+  //       // Step 1: Save draft
+  //       const { data: draftResponse } = await axios.post(
+  //         "http://localhost:5000/api/forms/draft",
+  //         formData,
+  //         {
+  //           headers: {
+  //             "Content-Type": "multipart/form-data",
+  //             Authorization: `Bearer ${token()}`,
+  //           },
+  //         }
+  //       );
 
-        console.log("🟢 Draft saved successfully:", draftResponse);
+  //       // console.log("🟢 Draft saved successfully:", draftResponse);
 
-        const formId = draftResponse.draftId;
-        const amount = Number(values.paymentAmount);
+  //       const formId = draftResponse.draftId;
+  //       const amount = Number(values.paymentAmount);
 
-        if (!formId) {
-          console.error("❌ Form ID missing");
-          toast.error("Form ID missing. Draft not created.");
-          setSubmitting(false);
-          return;
-        }
+  //       if (!formId) {
+  //         // console.error(" Form ID missing");
+  //         toast.error("Form ID missing. Draft not created.");
+  //         setSubmitting(false);
+  //         return;
+  //       }
 
-        // Step 2: Handle eSewa payment
-        if (values.paymentMethod === "eSewa") {
-          console.log("🔵 eSewa payment selected");
-          toast.info("Redirecting to eSewa...");
-            setSubmitting(false);    
-          // Call eSewa immediately
-          initiateEsewa({ formId, amount });
+  //       // Step 2: Handle eSewa payment
+  //       if (values.paymentMethod === "eSewa") {
+  //         // console.log("🔵 eSewa payment selected");
+  //         toast.info("Redirecting to eSewa...");
+  //           setSubmitting(false);    
+  //         // Call eSewa immediately
+  //         initiateEsewa({ formId, amount });
           
-          // Don't set submitting to false - page will redirect
-          return;
-        }
+  //         // Don't set submitting to false - page will redirect
+  //         return;
+  //       }
 
-        // Step 3: Normal form submission (non-eSewa)
-        console.log("🔵 Non-eSewa payment - submitting form");
+  //       // Step 3: Normal form submission (non-eSewa)
+  //       console.log("🔵 Non-eSewa payment - submitting form");
         
-        await axios.post("http://localhost:5000/api/forms", formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token()}`,
-          },
-        });
+  //       await axios.post("http://localhost:5000/api/forms", formData, {
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //           Authorization: `Bearer ${token()}`,
+  //         },
+  //       });
 
-        console.log("✅ Form submitted successfully");
-        toast.success("Form submitted successfully!");
-        resetForm();
-        setSubmitting(false);
+  //       console.log("✅ Form submitted successfully");
+  //       toast.success("Form submitted successfully!");
+  //       resetForm();
+  //       setSubmitting(false);
         
-      } catch (err) {
-        console.error("❌ Form submission error:", err);
-        console.error("Error details:", err.response?.data);
-        toast.error(err.response?.data?.message || "Submission error.");
-        setSubmitting(false);
+  //     } catch (err) {
+  //       console.error("❌ Form submission error:", err);
+  //       console.error("Error details:", err.response?.data);
+  //       toast.error(err.response?.data?.message || "Submission error.");
+  //       setSubmitting(false);
+  //     }
+  //   },
+  // });
+
+onSubmit: async (values, { setSubmitting, resetForm }) => {
+  try {
+    // Step 0: Check payment method
+    if (values.paymentMethod !== "eSewa") {
+      toast.info("Only eSewa is available. Other payment methods coming soon!");
+      setSubmitting(false);
+      return; // stop the form submission
+    }
+
+    // Step 1: Format subjects
+    const formattedSubjects = values.subjects
+      .split(",")
+      .map((t, i) => ({ code: `SUB${i + 1}`, title: t.trim() }));
+
+    // Step 2: Prepare FormData
+    const formData = new FormData();
+    const payload = {
+      fullName: values.fullName,
+      nationality: values.nationality,
+      dob: values.dob,
+      fatherName: values.fatherName,
+      address: {
+        province: values.province,
+        district: values.district,
+        municipality: values.municipality,
+        ward: values.ward,
+      },
+      contact: { phone: values.phone, email: values.email },
+      academicRecords: values.academicRecords,
+      tuRegistrationNo: values.tuRegistrationNo,
+      semester: values.semester,
+      year: values.year,
+      batch: values.batch,
+      collegeName: values.collegeName,
+      examCenter: values.examCenter,
+      course: values.course,
+      subjects: formattedSubjects,
+      paymentDetails: {
+        amount: Number(values.paymentAmount),
+        method: values.paymentMethod,
+      },
+    };
+
+    formData.append("data", JSON.stringify(payload));
+    formData.append("photo", values.photo);
+    formData.append("citizenshipDocument", values.citizenshipDocument);
+    formData.append("plusTwoDocument", values.plusTwoDocument);
+
+    // Step 3: Save draft
+    const { data: draftResponse } = await axios.post(
+      "http://localhost:5000/api/forms/draft",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token()}`,
+        },
       }
-    },
-  });
+    );
+
+    const formId = draftResponse.draftId;
+    const amount = Number(values.paymentAmount);
+
+    if (!formId) {
+      toast.error("Form ID missing. Draft not created.");
+      setSubmitting(false);
+      return;
+    }
+
+    // Step 4: Only eSewa payment allowed
+    toast.info("Redirecting to eSewa...");
+    initiateEsewa({ formId, amount });
+    // Don't setSubmitting(false) because the page will redirect
+
+  } catch (err) {
+    console.error("❌ Form submission error:", err);
+    toast.error(err.response?.data?.message || "Submission error.");
+    resetForm();
+    setSubmitting(false);
+  }
+}
+  })
+
+
 
   // Academic Records helpers
   const addAcademicRecord = () => {

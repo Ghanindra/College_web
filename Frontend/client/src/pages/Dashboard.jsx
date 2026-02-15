@@ -1,6 +1,6 @@
 // src/pages/Dashboard.jsx
 import { Outlet, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import React,{ useEffect, useState } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import "./Dashboard.css";

@@ -32,16 +32,18 @@
 
 
 // pages/PaymentSuccess.jsx
+import React from 'react'
 import { useSearchParams } from "react-router-dom";
 
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const formId = searchParams.get("formId");
-
+   const amount = searchParams.get("amount");
   return (
     <div style={{ padding: "2rem", textAlign: "center" }}>
       <h1>✅ Payment Successful!</h1>
       <p>Form ID: {formId}</p>
+       <p>Amount Paid: Rs. {amount}</p>
     </div>
   );
 }

@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'bohoraghanindra@gmail.com',
-    pass: 'xdixmbhdqwseawhp',
+    pass: 'uqda jkwx gior mgxk',
   },
 });
 
@@ -58,14 +58,23 @@ router.post(
       console.log("Parsed form data:", data);
 
       // Create draft
-      const draft = await ExamForm.create({
-        ...data,
-        studentId: req.user.id, // From auth middleware
-        photo: req.files.photo?.[0]?.filename,
-        citizenshipDocument: req.files.citizenshipDocument?.[0]?.filename,
-        plusTwoDocument: req.files.plusTwoDocument?.[0]?.filename,
-        paymentStatus: "pending",
-      });
+      // const draft = await ExamForm.create({
+      //   ...data,
+      //   studentId: req.user.id, // From auth middleware
+      //   photo: req.files.photo?.[0]?.filename,
+      //   citizenshipDocument: req.files.citizenshipDocument?.[0]?.filename,
+      //   plusTwoDocument: req.files.plusTwoDocument?.[0]?.filename,
+      //   paymentStatus: "pending",
+      // });
+// For draft
+const draft = await ExamForm.create({
+  ...data,
+  studentId: req.user.id,
+  photo: req.files.photo?.[0] ? `/uploads/${req.files.photo[0].filename}` : null,
+  citizenshipDocument: req.files.citizenshipDocument?.[0] ? `/uploads/${req.files.citizenshipDocument[0].filename}` : null,
+  plusTwoDocument: req.files.plusTwoDocument?.[0] ? `/uploads/${req.files.plusTwoDocument[0].filename}` : null,
+  paymentStatus: "pending",
+});
 
       console.log("✅ Draft created:", draft._id);
 
@@ -104,9 +113,13 @@ router.post(
       console.log('Received files:', req.files);
 
       // Assign file names
-      formData.photo = req.files['photo']?.[0]?.filename || null;
-      formData.plusTwoDocument = req.files['plusTwoDocument']?.[0]?.filename || null;
-      formData.citizenshipDocument = req.files['citizenshipDocument']?.[0]?.filename || null;
+      // formData.photo = req.files['photo']?.[0]?.filename || null;
+      // formData.plusTwoDocument = req.files['plusTwoDocument']?.[0]?.filename || null;
+      // formData.citizenshipDocument = req.files['citizenshipDocument']?.[0]?.filename || null;
+
+      formData.photo = req.files.photo?.[0] ? `/uploads/${req.files.photo[0].filename}` : null;
+formData.plusTwoDocument = req.files.plusTwoDocument?.[0] ? `/uploads/${req.files.plusTwoDocument[0].filename}` : null;
+formData.citizenshipDocument = req.files.citizenshipDocument?.[0] ? `/uploads/${req.files.citizenshipDocument[0].filename}` : null;
 
       const savedForm = await new ExamForm(formData).save();
       
@@ -159,25 +172,53 @@ router.get('/forms', async (req, res) => {
 // ============================================
 // GET /api/forms/:id - Get single form
 // ============================================
-router.get('/forms/:id', async (req, res) => {
+// router.get('/forms/:id', async (req, res) => {
+//   try {
+//     const form = await ExamForm.findById(req.params.id);
+
+//     if (!form) {
+//       return res.status(404).json({ message: 'Form not found' });
+//     }
+
+//     res.json(form);
+//   } catch (err) {
+//     console.error('Error fetching form by id:', err);
+
+//     if (err.name === 'CastError') {
+//       return res.status(400).json({ message: 'Invalid form ID' });
+//     }
+
+//     res.status(500).json({ message: 'Server Error' });
+//   }
+// });
+
+
+
+// ============================================
+// GET /api/forms/student/my-form
+// Get logged-in student's form
+// ============================================
+router.get("/student/my-form", auth(), async (req, res) => {
   try {
-    const form = await ExamForm.findById(req.params.id);
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const form = await ExamForm.findOne({
+      studentId: req.user.id,
+    }).sort({ createdAt: -1 });
 
     if (!form) {
-      return res.status(404).json({ message: 'Form not found' });
+      return res.json(null); // No form yet
     }
 
     res.json(form);
   } catch (err) {
-    console.error('Error fetching form by id:', err);
-
-    if (err.name === 'CastError') {
-      return res.status(400).json({ message: 'Invalid form ID' });
-    }
-
-    res.status(500).json({ message: 'Server Error' });
+    console.error(err);
+    res.status(500).json({ message: "Server Error" });
   }
 });
+
 
 // ============================================
 // PATCH /api/forms/:id/complete-payment - Complete payment
@@ -240,83 +281,113 @@ router.patch('/forms/:id/complete-payment', async (req, res) => {
 // ============================================
 // PATCH /api/forms/:id/approve - Approve payment (Admin)
 // ============================================
-router.patch('/forms/:id/approve', async (req, res) => {
-  try {
-    const form = await ExamForm.findById(req.params.id);
-    if (!form) {
-      return res.status(404).json({ message: 'Form not found' });
-    }
+// router.patch('/forms/:id/approve', async (req, res) => {
+//   try {
+//     const form = await ExamForm.findById(req.params.id);
+//     if (!form) {
+//       return res.status(404).json({ message: 'Form not found' });
+//     }
 
-    form.paymentStatus = 'completed';
-    await form.save();
+//     form.paymentStatus = 'completed';
+//     await form.save();
 
-    console.log('Sending email to:', form.contact.email);
+//     console.log('Sending email to:', form.contact.email);
 
-    const mailOptions = {
-      from: 'bohoraghanindra@gmail.com',
-      to: form.contact.email,
-      subject: 'Exam Form Payment Approved - Tribhuvan University',
-      text: `Dear ${form.fullName},\n\nYour exam form payment has been approved successfully.\n\nBest regards,\nTribhuvan University`,
-    };
+//     const mailOptions = {
+//       from: 'bohoraghanindra@gmail.com',
+//       to: form.contact.email,
+//       subject: 'Exam Form Payment Approved - Tribhuvan University',
+//       text: `Dear ${form.fullName},\n\nYour exam form payment has been approved successfully.\n\nBest regards,\nTribhuvan University`,
+//     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Email error:', error);
-        return res.status(500).json({ 
-          message: 'Form approved, but failed to send email', 
-          error: error.message 
-        });
-      } else {
-        console.log('Email sent:', info.response);
-        return res.json({ 
-          message: 'Payment approved and email sent', 
-          form 
-        });
-      }
-    });
+//     transporter.sendMail(mailOptions, (error, info) => {
+//       if (error) {
+//         console.error('Email error:', error);
+//         return res.status(500).json({ 
+//           message: 'Form approved, but failed to send email', 
+//           error: error.message 
+//         });
+//       } else {
+//         console.log('Email sent:', info.response);
+//         return res.json({ 
+//           message: 'Payment approved and email sent', 
+//           form 
+//         });
+//       }
+//     });
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server Error' });
-  }
-});
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server Error' });
+//   }
+// });
 
 // ============================================
 // PATCH /api/forms/:id/reject - Reject payment (Admin)
 // ============================================
+// router.patch('/forms/:id/reject', async (req, res) => {
+//   try {
+//     const form = await ExamForm.findById(req.params.id);
+//     if (!form) {
+//       return res.status(404).json({ message: 'Form not found' });
+//     }
+
+//     form.paymentStatus = 'rejected';
+//     await form.save();
+
+//     console.log('Sending rejection email to:', form.contact.email);
+
+//     const mailOptions = {
+//       from: 'bohoraghanindra@gmail.com',
+//       to: form.contact.email,
+//       subject: 'Exam Form Payment Rejected - Tribhuvan University',
+//       text: `Dear ${form.fullName},\n\nUnfortunately, your exam form payment has been rejected. Please check your form and submit again.\n\nBest regards,\nTribhuvan University`,
+//     };
+
+//     transporter.sendMail(mailOptions, (error, info) => {
+//       if (error) {
+//         console.error('Email error:', error);
+//         return res.status(500).json({ 
+//           message: 'Form rejected, but failed to send email', 
+//           error: error.message 
+//         });
+//       } else {
+//         console.log('Rejection email sent:', info.response);
+//         return res.json({ 
+//           message: 'Form rejected and email sent', 
+//           form 
+//         });
+//       }
+//     });
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server Error' });
+//   }
+// });
+
+
+
+// Reject form
 router.patch('/forms/:id/reject', async (req, res) => {
   try {
     const form = await ExamForm.findById(req.params.id);
-    if (!form) {
-      return res.status(404).json({ message: 'Form not found' });
-    }
+    if (!form) return res.status(404).json({ message: 'Form not found' });
 
-    form.paymentStatus = 'rejected';
+    form.approvalStatus = 'rejected'; // <-- only approvalStatus
     await form.save();
 
-    console.log('Sending rejection email to:', form.contact.email);
-
+    console.log('Sending rejection email to:', form.contact?.email);
     const mailOptions = {
       from: 'bohoraghanindra@gmail.com',
       to: form.contact.email,
-      subject: 'Exam Form Payment Rejected - Tribhuvan University',
-      text: `Dear ${form.fullName},\n\nUnfortunately, your exam form payment has been rejected. Please check your form and submit again.\n\nBest regards,\nTribhuvan University`,
+      subject: 'Exam Form Rejected - TU',
+      text: `Dear ${form.fullName},\n\nYour exam form has been rejected. Please edit and resubmit.\n\nBest regards,\nTU`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Email error:', error);
-        return res.status(500).json({ 
-          message: 'Form rejected, but failed to send email', 
-          error: error.message 
-        });
-      } else {
-        console.log('Rejection email sent:', info.response);
-        return res.json({ 
-          message: 'Form rejected and email sent', 
-          form 
-        });
-      }
+      if (error) return res.status(500).json({ message: 'Rejected but email failed', error: error.message });
+      res.json({ message: 'Form rejected and email sent', form });
     });
 
   } catch (err) {
@@ -324,6 +395,40 @@ router.patch('/forms/:id/reject', async (req, res) => {
     res.status(500).json({ message: 'Server Error' });
   }
 });
+
+// Approve form
+router.patch('/forms/:id/approve', async (req, res) => {
+  try {
+    const form = await ExamForm.findById(req.params.id);
+    if (!form) return res.status(404).json({ message: 'Form not found' });
+
+    form.approvalStatus = 'approved';
+    form.paymentStatus = 'completed';
+    await form.save();
+
+    const mailOptions = {
+      from: 'bohoraghanindra@gmail.com',
+      to: form.contact.email,
+      subject: 'Exam Form Approved - TU',
+      text: `Dear ${form.fullName},\n\nYour exam form has been approved.\n\nBest regards,\nTU`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) return res.status(500).json({ message: 'Approved but email failed', error: error.message });
+      res.json({ message: 'Form approved and email sent', form });
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server Error' });
+  }
+});
+
+
+
+
+
+
 
 // ============================================
 // POST /api/forms/:id/send-email - Send email
@@ -363,31 +468,94 @@ router.post('/forms/:id/send-email', async (req, res) => {
 // ============================================
 // PUT /api/forms/:id - Update form (requires auth)
 // ============================================
-router.put("/forms/:id", auth, async (req, res) => {
-  try {
-    const form = await ExamForm.findById(req.params.id);
+// router.put("/forms/:id", auth, async (req, res) => {
+//   try {
+//     const form = await ExamForm.findById(req.params.id);
 
-    if (!form) {
-      return res.status(404).json({ message: "Form not found" });
+//     if (!form) {
+//       return res.status(404).json({ message: "Form not found" });
+//     }
+// if (form.approvalStatus === "approved") {
+//   return res.status(403).json({ message: "Form locked after approval" });
+// }
+//     if (form.paymentStatus === "completed") {
+//       return res.status(403).json({ message: "Form locked after payment" });
+//     }
+
+//     if (form.studentId.toString() !== req.user.userId.toString()) {
+//       return res.status(403).json({ message: "Unauthorized" });
+//     }
+
+//     Object.assign(form, req.body);
+//     await form.save();
+
+//     res.json(form);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server Error' });
+//   }
+// });
+
+
+router.put(
+  "/forms/:id",
+  auth(),
+  upload.fields([
+    { name: "photo", maxCount: 1 },
+    { name: "citizenshipDocument", maxCount: 1 },
+    { name: "plusTwoDocument", maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      const form = await ExamForm.findById(req.params.id);
+      if (!form) return res.status(404).json({ message: "Form not found" });
+
+      // Only allow edit if rejected or pending
+      if (form.approvalStatus === "approved") {
+        return res.status(403).json({ message: "Form locked after approval" });
+      }
+
+      if (form.studentId.toString() !== req.user.id.toString()) {
+        return res.status(403).json({ message: "Unauthorized" });
+      }
+
+      const data = req.body.data ? JSON.parse(req.body.data) : {};
+
+      // Update only if field exists
+      if (data.fullName) form.fullName = data.fullName;
+      if (data.nationality) form.nationality = data.nationality;
+      if (data.semester) form.semester = data.semester;
+      if (data.year) form.year = data.year;
+      if (data.batch) form.batch = data.batch;
+      if (data.collegeName) form.collegeName = data.collegeName;
+      if (data.course) form.course = data.course;
+      if (data.examCenter) form.examCenter = data.examCenter;
+      if (data.subjects) form.subjects = data.subjects;
+      if (data.academicRecords) form.academicRecords = data.academicRecords;
+      if (data.address) form.address = { ...form.address, ...data.address };
+      if (data.contact) form.contact = { ...form.contact, ...data.contact };
+      if (data.paymentDetails) form.paymentDetails = { ...form.paymentDetails, ...data.paymentDetails };
+
+      // Handle optional file uploads
+      if (req.files?.photo) form.photo = `/uploads/${req.files.photo[0].filename}`;
+      if (req.files?.citizenshipDocument) form.citizenshipDocument = `/uploads/${req.files.citizenshipDocument[0].filename}`;
+      if (req.files?.plusTwoDocument) form.plusTwoDocument = `/uploads/${req.files.plusTwoDocument[0].filename}`;
+
+      // Reset approvalStatus only if the form was previously rejected
+      if (form.approvalStatus === "rejected") form.approvalStatus = "pending";
+
+      await form.save();
+      res.json({ message: "Form updated successfully", form });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server Error", error: err.message });
     }
-
-    if (form.paymentStatus === "completed") {
-      return res.status(403).json({ message: "Form locked after payment" });
-    }
-
-    if (form.studentId.toString() !== req.user.userId.toString()) {
-      return res.status(403).json({ message: "Unauthorized" });
-    }
-
-    Object.assign(form, req.body);
-    await form.save();
-
-    res.json(form);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server Error' });
   }
-});
+);
+
+
+
+
 
 // ============================================
 // Form Config Routes

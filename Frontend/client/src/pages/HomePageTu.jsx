@@ -1,4 +1,4 @@
-
+import React from 'react'
 import { Link } from "react-router-dom"
 import TuHeader from "../components/TuHeader"
 import graduation from "../assets/graduation.jpg"

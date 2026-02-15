@@ -11,7 +11,8 @@ const examFormRoutes = require('./routes/examFormRoutes');
 const resultRoutes = require('./routes/resultRoutes');
 const examRoutineRoutes = require('./routes/examRoutineRoutes');
 const contactRoutes = require('./routes/contactRoutes');
-const esewaRoutes = require('./routes/esewaRoutes');
+// const esewaRoutes = require('./routes/esewaRoutes');
+const path=require('path')
 const { initiateEsewaPayment, esewaSuccess,esewaFailure }=require( "./controllers/esewaController.js");
 // const {
 //   testEsewaForm,
@@ -38,7 +39,8 @@ app.use("/api/notices", require("./routes/noticeRoutes"));
 app.use("/api/events",require("./routes/eventRoutes"));
 // app.use("/api/courses", require("./routes/courseRoutes"));
 // Serve uploaded files
-app.use("/uploads", express.static("uploads"));
+// app.use("/uploads", express.static("uploads"));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/api/gallery", require("./routes/galleryRoutes"));
 app.use("/api/faculties", require("./routes/facultyRoutes"));
