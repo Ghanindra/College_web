@@ -5,7 +5,7 @@
 const mongoose=require( "mongoose");
 
 const examFormSchema = new mongoose.Schema({
-  studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Students", required: true },
+  studentId: { type: mongoose.Schema.Types.ObjectId, ref: "Students", required: true ,unique: true},
 
   fullName: String,
   nationality: String,

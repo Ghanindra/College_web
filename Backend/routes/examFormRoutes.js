@@ -8,6 +8,7 @@ const FormConfig = require('../models/FormConfig');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const auth = require("../middleware/auth");
+// const PDFDocument = require("pdfkit");
 const path = require("path");
 // Email transporter
 const transporter = nodemailer.createTransport({
@@ -43,8 +44,35 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      console.log(" Draft route hit");
-      console.log("User from auth:", req.user);
+  // Get current form config
+const config = await FormConfig.findOne({ formType: "examForm" });
+
+if (!config) {
+  return res.status(400).json({ message: "Form not configured." });
+}
+
+const now = new Date();
+
+// Check if form is open
+if (now < config.startTime || now > config.endTime) {
+  return res.status(400).json({ message: "Form is currently closed." });
+}
+
+// Check if student already submitted in THIS OPEN WINDOW
+const existingForm = await ExamForm.findOne({
+  studentId: req.user.id,
+  createdAt: {
+    $gte: config.startTime,
+    $lte: config.endTime
+  }
+});
+
+if (existingForm) {
+  return res.status(400).json({
+    message: "You have already submitted a form in this session."
+  });
+}
+
 
       // Check if user is authenticated
       if (!req.user || !req.user.id) {
@@ -55,17 +83,9 @@ router.post(
 
       // Parse form data
       const data = JSON.parse(req.body.data);
-      console.log("Parsed form data:", data);
+      // console.log("Parsed form data:", data);
 
-      // Create draft
-      // const draft = await ExamForm.create({
-      //   ...data,
-      //   studentId: req.user.id, // From auth middleware
-      //   photo: req.files.photo?.[0]?.filename,
-      //   citizenshipDocument: req.files.citizenshipDocument?.[0]?.filename,
-      //   plusTwoDocument: req.files.plusTwoDocument?.[0]?.filename,
-      //   paymentStatus: "pending",
-      // });
+    
 // For draft
 const draft = await ExamForm.create({
   ...data,
@@ -75,12 +95,13 @@ const draft = await ExamForm.create({
   plusTwoDocument: req.files.plusTwoDocument?.[0] ? `/uploads/${req.files.plusTwoDocument[0].filename}` : null,
   paymentStatus: "pending",
 });
-
+const totalForms = await ExamForm.countDocuments({ studentId: req.user.id });
       console.log("✅ Draft created:", draft._id);
 
       res.json({ 
         success: true, 
         draftId: draft._id,
+          totalForms, 
         message: "Draft saved successfully"
       });
 
@@ -99,36 +120,43 @@ const draft = await ExamForm.create({
 // ============================================
 router.post(
   '/',
+  auth(),
   upload.fields([
     { name: 'photo', maxCount: 1 },
     { name: 'plusTwoDocument', maxCount: 1 },
     { name: 'citizenshipDocument', maxCount: 1 },
   ]),
   async (req, res) => {
-    console.log('POST /api/forms route hit');
+    // console.log('POST /api/forms route hit');
     try {
       const formData = JSON.parse(req.body.data);
+  // Count total forms submitted by this student
+      const totalForms = await ExamForm.countDocuments({ studentId: formData.studentId || req.user?.id });
 
-      console.log('Received form data:', formData);
-      console.log('Received files:', req.files);
+      // Assign form number
+      formData.formNumber = totalForms + 1; // 1-based numbering
+      // console.log('Received form data:', formData);
+      // console.log('Received files:', req.files);
 
-      // Assign file names
-      // formData.photo = req.files['photo']?.[0]?.filename || null;
-      // formData.plusTwoDocument = req.files['plusTwoDocument']?.[0]?.filename || null;
-      // formData.citizenshipDocument = req.files['citizenshipDocument']?.[0]?.filename || null;
-
+      
       formData.photo = req.files.photo?.[0] ? `/uploads/${req.files.photo[0].filename}` : null;
 formData.plusTwoDocument = req.files.plusTwoDocument?.[0] ? `/uploads/${req.files.plusTwoDocument[0].filename}` : null;
 formData.citizenshipDocument = req.files.citizenshipDocument?.[0] ? `/uploads/${req.files.citizenshipDocument[0].filename}` : null;
 
       const savedForm = await new ExamForm(formData).save();
-      
+       if (req.user?.id) formData.studentId = req.user.id;
       console.log('✅ Form saved:', savedForm._id);
       
-      res.status(201).json(savedForm);
+    
+      res.status(201).json({
+        success: true,
+        form: savedForm,
+        message: `Form submitted successfully! This is your form #${formData.formNumber}`,
+      });
     } catch (err) {
       console.error('❌ Error saving form:', err);
       res.status(500).json({ 
+        
         message: 'Error saving form', 
         error: err.message 
       });
@@ -204,15 +232,14 @@ router.get("/student/my-form", auth(), async (req, res) => {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const form = await ExamForm.findOne({
-      studentId: req.user.id,
-    }).sort({ createdAt: -1 });
+ const form = await ExamForm.findOne({ studentId: req.user.id }).sort({ createdAt: -1 });
+    const totalForms = await ExamForm.countDocuments({ studentId: req.user.id });
 
     if (!form) {
       return res.json(null); // No form yet
     }
 
-    res.json(form);
+    res.json({form,totalForms});
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server Error" });
@@ -595,6 +622,63 @@ router.get("/form-config", async (req, res) => {
   }
 });
 
+// router.get("/forms/:id/admit-card", auth(), async (req, res) => {
+//   try {
+//     const form = await ExamForm.findById(req.params.id);
+
+//     if (!form) {
+//       return res.status(404).json({ message: "Form not found" });
+//     }
+
+//     // Only owner can download
+//     if (form.studentId.toString() !== req.user.id.toString()) {
+//       return res.status(403).json({ message: "Unauthorized" });
+//     }
+
+//     if (form.approvalStatus !== "approved") {
+//       return res.status(403).json({ message: "Admit card not available yet" });
+//     }
+
+//     // Create PDF
+//     const doc = new PDFDocument();
+
+//     res.setHeader(
+//       "Content-Disposition",
+//       `attachment; filename=admit-card-${form._id}.pdf`
+//     );
+//     res.setHeader("Content-Type", "application/pdf");
+
+//     doc.pipe(res);
+
+//     doc.fontSize(20).text("Tribhuvan University", { align: "center" });
+//     doc.moveDown();
+//     doc.fontSize(16).text("Examination Admit Card", { align: "center" });
+
+//     doc.moveDown();
+//     doc.fontSize(12).text(`Name: ${form.fullName}`);
+//     doc.text(`TU Registration No: ${form.tuRegistrationNo}`);
+//     doc.text(`Semester: ${form.semester}`);
+//     doc.text(`Year: ${form.year}`);
+//     doc.text(`Course: ${form.course}`);
+//     doc.text(`Exam Center: ${form.examCenter}`);
+
+//     doc.moveDown();
+//     doc.text("Subjects:");
+
+//     form.subjects.forEach((sub, index) => {
+//       doc.text(`${index + 1}. ${sub.code} - ${sub.title}`);
+//     });
+
+//     doc.moveDown();
+//     doc.text("Approved By: TU Examination Department");
+
+//     doc.end();
+
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// });
 module.exports = router;
 
 
