@@ -33,8 +33,9 @@
 
 // pages/PaymentSuccess.jsx
 import React from 'react'
-import { useSearchParams } from "react-router-dom";
-
+import {  useSearchParams ,Link} from "react-router-dom";
+// import StudentDashboard from '../pages/StudentDashboard'
+// const navigation=useNavigation()
 export default function PaymentSuccess() {
   const [searchParams] = useSearchParams();
   const formId = searchParams.get("formId");
@@ -44,6 +45,7 @@ export default function PaymentSuccess() {
       <h1>✅ Payment Successful!</h1>
       <p>Form ID: {formId}</p>
        <p>Amount Paid: Rs. {amount}</p>
+                  <p className="breadcrumb"><Link to="/student">Student Dashboard</Link></p>
     </div>
   );
 }

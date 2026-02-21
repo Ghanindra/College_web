@@ -1,3 +1,4 @@
+import React from 'react'
 import TuHeader from "../components/TuHeader"
 import Footer from "../components/Footer"
 import lila from '../assets/lila.jpg'

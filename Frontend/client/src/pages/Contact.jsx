@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React,{ useState } from "react";
 import { MapPin, Phone, Mail } from "lucide-react";
 import TuHeader from "../components/TuHeader";
 import Footer from "../components/Footer";

@@ -67,3 +67,14 @@ button:focus-visible {
   }
 } */
 @import "tailwindcss";
+
+@theme {
+  --color-tu-maroon: #7B1E3A;
+  --color-tu-wine: #5A1429;
+  --color-tu-cream: #F3E9DC;
+  --color-tu-off-white: #FAFAF8;
+  --color-tu-text: #2B2B2B;
+
+  --font-serif: "Playfair Display", serif;
+  --font-sans: Inter, sans-serif;
+}
