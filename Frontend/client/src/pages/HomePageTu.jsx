@@ -718,36 +718,73 @@ export default function HomePageTU() {
       <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
         <TuHeader />
+{/* ══ HERO (Redesigned with Tailwind) ══ */}
+<section
+  onClick={nextSlide}
+  aria-label="Hero slideshow"
+  className="relative h-[90vh] w-full overflow-hidden cursor-pointer"
+>
+  {/* Background Image */}
+  <div
+    className={`absolute inset-0 bg-cover bg-center transition-all duration-700 ${
+      exiting ? "scale-110 opacity-0" : "scale-100 opacity-100"
+    }`}
+    style={{ backgroundImage: `url(${h.image})` }}
+  />
 
-        {/* ══ HERO ══ */}
-        <section className="hero" onClick={nextSlide} aria-label="Hero slideshow">
-          <div className={`hero__bg${exiting ? " hero__bg--exit" : ""}`} style={{ backgroundImage: `url(${h.image})` }} />
-          <div className="hero__grad" />
-          <div className="hero__accent" />
-          <div className="hero__body">
-            <div>
-              <p  className="hero__kicker fade-up">{h.kicker}</p>
-              <h1 className="hero__h1 fade-up delay-1">{h.title}</h1>
-              <p  className="hero__sub fade-up delay-2">{h.sub}</p>
-            </div>
-            {h.badge && (
-              <div className="hero__glass fade-up delay-3">
-                <span className="hero__glass-label">{h.badge.label}</span>
-                <span className="hero__glass-val">{h.badge.val}</span>
-              </div>
-            )}
-          </div>
-          <div className="hero__dots">
-            {heroSlides.map((_, i) => (
-              <button
-                key={i}
-                className={`hero__dot${i === heroIdx ? " hero__dot--active" : ""}`}
-                onClick={e => { e.stopPropagation(); goSlide(i); }}
-                aria-label={`Slide ${i + 1}`}
-              />
-            ))}
-          </div>
-        </section>
+  {/* Dark Gradient Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-br from-black/80 via-black/60 to-black/30" />
+
+  {/* Decorative Blur Circle */}
+  <div className="absolute -top-20 -left-20 w-72 h-72 bg-red-600/30 rounded-full blur-3xl" />
+  <div className="absolute bottom-0 right-0 w-96 h-96 bg-yellow-500/20 rounded-full blur-3xl" />
+
+  {/* Content */}
+  <div className="relative z-10 flex flex-col justify-center items-center text-center h-full px-6">
+    
+    <p className="uppercase tracking-widest text-red-400 font-semibold mb-4 animate-fadeIn">
+      {h.kicker}
+    </p>
+
+    <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight max-w-4xl animate-fadeIn">
+      {h.title}
+    </h1>
+
+    <p className="mt-6 text-lg md:text-xl text-gray-200 max-w-2xl animate-fadeIn">
+      {h.sub}
+    </p>
+
+    {h.badge && (
+      <div className="mt-10 backdrop-blur-xl bg-white/10 border border-white/20 px-8 py-4 rounded-2xl shadow-2xl">
+        <span className="block text-sm text-gray-300">
+          {h.badge.label}
+        </span>
+        <span className="block text-2xl font-bold text-yellow-400">
+          {h.badge.val}
+        </span>
+      </div>
+    )}
+  </div>
+
+  {/* Dots Navigation */}
+  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+    {heroSlides.map((_, i) => (
+      <button
+        key={i}
+        onClick={(e) => {
+          e.stopPropagation();
+          goSlide(i);
+        }}
+        aria-label={`Slide ${i + 1}`}
+        className={`w-3 h-3 rounded-full transition-all duration-300 ${
+          i === heroIdx
+            ? "bg-yellow-400 scale-125"
+            : "bg-white/50 hover:bg-white"
+        }`}
+      />
+    ))}
+  </div>
+</section>
 
         <div className="stripe" />
 
