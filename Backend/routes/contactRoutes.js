@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
       service: 'gmail',
       auth: {
         user: 'bohoraghanindra@gmail.com',
-        pass: 'xdixmbhdqwseawhp', // ✅ Your app password
+        pass: 'uqda jkwx gior mgxk', // ✅ Your app password
       },
     });
 

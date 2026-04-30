@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import './ExamRoutineGallery.css';
-
+import Base_Url from '../api/Base_Url'
+import {SERVER_URL} from '../api/Base_Url'
 export default function ExamRoutineGallery() {
   const [imageUrl, setImageUrl] = useState(""); // single image URL string
   const [error, setError] = useState("");
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/routine")
+    axios.get(`${Base_Url}/routine`)
       .then((res) => {
         console.log("API response data:", res.data);
         if (res.data.routine && res.data.routine.imageUrl) {
           // Build full URL including server origin
-          const fullUrl = `http://localhost:5000${res.data.routine.imageUrl}`;
+          const fullUrl = `${SERVER_URL}${res.data.routine.imageUrl}`;
           setImageUrl(fullUrl);
         } else {
           setImageUrl("");

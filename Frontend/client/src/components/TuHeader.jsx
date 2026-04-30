@@ -1,461 +1,9 @@
 
-
-// // import React, { useState } from "react";
-// // import { NavLink } from "react-router-dom";
-// // import { useAuth } from "../context/useAuth";
-// // import "./TUHeader.css";
-// // import logo from "../assets/tu.png";
-
-// // import ExamForm from "../pages/ExamForm";
-// // import ResultSearch from "../pages/ResultSearch";
-// // import ExamRoutineGallery from "../pages/ExamRoutineGallery";
-
-// // export default function TUHeader() {
-// //   const [open, setOpen] = useState(false);
-// //   const [dropdown, setDropdown] = useState(null);
-// //   const [openExamSection, setOpenExamSection] = useState(null);
-
-// //   const { user, logout } = useAuth();
-
-// //   const navItems = [
-// //     { name: "Home", path: "/" },
-// //     { name: "Notices", path: "/news" },
-// //     {
-// //       name: "Faculty",
-// //       children: [
-// //         { name: "Institute of Engineering", path: "https://ioe.tu.edu.np/", external: true },
-// //         { name: "Institute of Medicine", path: "https://iom.edu.np", external: true },
-// //         { name: "Institute of Science and Technology", path: "https://iost.tu.edu.np", external: true },
-// //         { name: "Institute of Forestry", path: "https://iof.edu.np", external: true },
-// //         { name: "Faculty of Management", path: "https://fomecd.edu.np", external: true },
-// //         { name: "Faculty of Law", path: "https://fol.tu.edu.np", external: true },
-// //       ],
-// //     },
-// //     {
-// //       name: "Campuses",
-// //       children: [
-// //         { name: "Amrit Science Campus", path: "https://amritcampus.edu.np", external: true },
-// //         { name: "Tri-Chandra Campus", path: "https://trichandracampus.edu.np", external: true },
-// //         { name: "Ratna Rajya Laxmi Campus", path: "https://www.collegesnepal.com/ratna-rajya-laxmi-campus/", external: true },
-// //         { name: "Patan Multiple Campus", path: "https://pmc.tu.edu.np", external: true },
-// //         { name: "Saraswoti Multiple Campus", path: "https://smc.edu.np", external: true },
-// //         { name: "Mahendra Ratna Campus", path: "https://mrc.tu.edu.np", external: true },
-// //         { name: "Padma Kanya Multiple Campus", path: "https://edusanjal.com/college/padma-kanya-campus/", external: true },
-// //       ],
-// //     },
-// //     { name: "Events", path: "/events" },
-// //     { name: "Gallery", path: "/gallery" },
-// //     {
-// //       name: "Exam Schedule",
-// //       children: [
-// //         { name: "Exam Routine" },
-// //         { name: "Result" },
-// //         { name: "Exam Form" },
-// //       ],
-// //     },
-// //   ];
-
-// //   const linkClass = ({ isActive }) =>
-// //     isActive ? "nav-link active" : "nav-link";
-
-// //   return (
-// //     <header className="header">
-// //       <div className="container">
-
-// //         {/* LOGO */}
-// //         <NavLink to="/" className="logo-link">
-// //           <img src={logo} alt="TU Logo" className="logo" />
-// //           <span className="logo-text">Tribhuvan University</span>
-// //         </NavLink>
-
-// //         {/* ================= DESKTOP NAV ================= */}
-// //         <nav className="nav-desktop">
-// //           {navItems.map((item, i) =>
-// //             item.children ? (
-// //               <div
-// //                 key={i}
-// //                 className="nav-dropdown"
-// //                 onMouseEnter={() => setDropdown(item.name)}
-// //                 onMouseLeave={() => setDropdown(null)}
-// //               >
-// //                 <span className="nav-dropdown-label">
-// //                   {item.name}
-// //                 </span>
-
-// //                 <div className={`nav-dropdown-menu ${dropdown === item.name ? "active" : ""}`}>
-// //                   {item.name === "Exam Schedule"
-// //                     ? item.children.map((child, idx) => (
-// //                         <button
-// //                           key={idx}
-// //                           className="nav-dropdown-item"
-// //                           onClick={() => {
-// //                             setOpenExamSection(child.name.toLowerCase().replace(/\s+/g, "-"));
-// //                             setDropdown(null);
-// //                           }}
-// //                         >
-// //                           {child.name}
-// //                         </button>
-// //                       ))
-// //                     : item.children.map((child, idx) =>
-// //                         child.external ? (
-// //                           <a
-// //                             key={idx}
-// //                             href={child.path}
-// //                             target="_blank"
-// //                             rel="noopener noreferrer"
-// //                             className="nav-dropdown-item"
-// //                           >
-// //                             {child.name}
-// //                           </a>
-// //                         ) : (
-// //                           <NavLink key={idx} to={child.path} className="nav-dropdown-item">
-// //                             {child.name}
-// //                           </NavLink>
-// //                         )
-// //                       )}
-// //                 </div>
-// //               </div>
-// //             ) : (
-// //               <NavLink key={i} to={item.path} className={linkClass}>
-// //                 {item.name}
-// //               </NavLink>
-// //             )
-// //           )}
-
-// //           {/* AUTH BUTTONS (DESKTOP) */}
-// //           <div className="auth-actions">
-// //             {!user ? (
-// //               <>
-// //                 <NavLink to="/login" className="nav-link">Login</NavLink>
-// //                 {/* <NavLink to="/register" className="nav-link register-btn">Register</NavLink> */}
-// //               </>
-// //             ) : (
-// //               <>
-// //                 {user.role === "admin" && (
-// //                   <NavLink to="/dashboard" className="nav-link">Dashboard</NavLink>
-// //                 )}
-// //                 {user.role === "student" && (
-// //                   <NavLink to="/student" className="nav-link">My Dashboard</NavLink>
-// //                 )}
-// //                 <button onClick={logout} className="nav-link logout-btn">Logout</button>
-// //               </>
-// //             )}
-// //           </div>
-// //         </nav>
-
-// //         {/* ================= MOBILE MENU ================= */}
-// //         <button className="mobile-menu-button" onClick={() => setOpen(!open)}>
-// //           ☰
-// //         </button>
-
-// //         <nav className={`nav-mobile ${open ? "active" : ""}`}>
-// //           <div className="nav-mobile-content">
-// //             {navItems.map((item, i) =>
-// //               item.children ? (
-// //                 <div key={i} className="nav-mobile-dropdown">
-// //                   <div className="nav-mobile-dropdown-label">{item.name}</div>
-// //                   <div className="nav-mobile-dropdown-content">
-// //                     {item.name === "Exam Schedule"
-// //                       ? item.children.map((child, idx) => (
-// //                           <button
-// //                             key={idx}
-// //                             className="nav-mobile-dropdown-item"
-// //                             onClick={() => {
-// //                               setOpenExamSection(child.name.toLowerCase().replace(/\s+/g, "-"));
-// //                               setOpen(false);
-// //                             }}
-// //                           >
-// //                             {child.name}
-// //                           </button>
-// //                         ))
-// //                       : item.children.map((child, idx) =>
-// //                           child.external ? (
-// //                             <a
-// //                               key={idx}
-// //                               href={child.path}
-// //                               target="_blank"
-// //                               rel="noopener noreferrer"
-// //                               className="nav-mobile-dropdown-item"
-// //                             >
-// //                               {child.name}
-// //                             </a>
-// //                           ) : (
-// //                             <NavLink
-// //                               key={idx}
-// //                               to={child.path}
-// //                               className="nav-mobile-dropdown-item"
-// //                               onClick={() => setOpen(false)}
-// //                             >
-// //                               {child.name}
-// //                             </NavLink>
-// //                           )
-// //                         )}
-// //                   </div>
-// //                 </div>
-// //               ) : (
-// //                 <NavLink
-// //                   key={i}
-// //                   to={item.path}
-// //                   className="nav-mobile-link"
-// //                   onClick={() => setOpen(false)}
-// //                 >
-// //                   {item.name}
-// //                 </NavLink>
-// //               )
-// //             )}
-
-// //             {/* AUTH BUTTONS (MOBILE) */}
-// //             {!user ? (
-// //               <>
-// //                 <NavLink to="/login" className="nav-mobile-link" onClick={() => setOpen(false)}>Login</NavLink>
-// //                 <NavLink to="/register" className="nav-mobile-link" onClick={() => setOpen(false)}>Register</NavLink>
-// //               </>
-// //             ) : (
-// //               <>
-// //                 {user.role === "admin" && (
-// //                   <NavLink to="/dashboard" className="nav-mobile-link">Dashboard</NavLink>
-// //                 )}
-// //                 {user.role === "student" && (
-// //                   <NavLink to="/student" className="nav-mobile-link">My Dashboard</NavLink>
-// //                 )}
-// //                 <button onClick={logout} className="nav-mobile-link logout-btn">Logout</button>
-// //               </>
-// //             )}
-// //           </div>
-// //         </nav>
-// //       </div>
-
-// //       {/* ================= EXAM MODAL ================= */}
-// //       {openExamSection && (
-// //         <div className="modal-overlay" onClick={() => setOpenExamSection(null)}>
-// //           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-// //             <button className="close-btn" onClick={() => setOpenExamSection(null)}>&times;</button>
-
-// //             {openExamSection === "exam-form" && <ExamForm />}
-// //             {openExamSection === "exam-routine" && <ExamRoutineGallery />}
-// //             {openExamSection === "result" && <ResultSearch />}
-// //           </div>
-// //         </div>
-// //       )}
-// //     </header>
-// //   );
-// // }
-
-
-
-
-// import React, { useState } from "react";
-// import { Menu, X, ChevronDown } from "lucide-react";
-
-// export default function TUHeader() {
-//   const [mobileOpen, setMobileOpen] = useState(false);
-//   const [activeDropdown, setActiveDropdown] = useState(null);
-//   const [user] = useState(null);
-
-//   const navItems = [
-//     { name: "Home", path: "/" },
-//     { name: "Notices", path: "/news" },
-//     {
-//       name: "Faculty",
-//       children: [
-//         { name: "Institute of Engineering", path: "https://ioe.tu.edu.np/", external: true },
-//         { name: "Institute of Medicine", path: "https://iom.edu.np", external: true },
-//         { name: "Institute of Science and Technology", path: "https://iost.tu.edu.np", external: true },
-//         { name: "Institute of Forestry", path: "https://iof.edu.np", external: true },
-//         { name: "Faculty of Management", path: "https://fomecd.edu.np", external: true },
-//         { name: "Faculty of Law", path: "https://fol.tu.edu.np", external: true },
-//       ],
-//     },
-//     {
-//       name: "Campuses",
-//       children: [
-//         { name: "Amrit Science Campus", path: "https://amritcampus.edu.np", external: true },
-//         { name: "Tri-Chandra Campus", path: "https://trichandracampus.edu.np", external: true },
-//         { name: "Ratna Rajya Laxmi Campus", path: "https://www.collegesnepal.com/ratna-rajya-laxmi-campus/", external: true },
-//         { name: "Patan Multiple Campus", path: "https://pmc.tu.edu.np", external: true },
-//         { name: "Saraswoti Multiple Campus", path: "https://smc.edu.np", external: true },
-//         { name: "Mahendra Ratna Campus", path: "https://mrc.tu.edu.np", external: true },
-//         { name: "Padma Kanya Multiple Campus", path: "https://edusanjal.com/college/padma-kanya-campus/", external: true },
-//       ],
-//     },
-//     { name: "Events", path: "/events" },
-//     { name: "Gallery", path: "/gallery" },
-//     {
-//       name: "Exam Schedule",
-//       children: [
-//         { name: "Exam Routine", path: "#exam-routine" },
-//         { name: "Result", path: "#result" },
-//         { name: "Exam Form", path: "#exam-form" },
-//       ],
-//     },
-//   ];
-
-//   return (
-//     <header className="sticky top-0 z-50 bg-white border-b border-border shadow-sm">
-//       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-//         <div className="flex items-center justify-between h-20">
-//           {/* Logo */}
-//           <a href="/" className="flex items-center gap-3 flex-shrink-0">
-//             <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-//               <span className="text-white font-bold text-lg">TU</span>
-//             </div>
-//             <div className="hidden sm:block">
-//               <h1 className="text-lg font-bold text-foreground">Tribhuvan University</h1>
-//               <p className="text-xs text-muted-foreground">Nepal's Premier Institution</p>
-//             </div>
-//           </a>
-
-//           {/* Desktop Navigation */}
-//           <nav className="hidden lg:flex items-center gap-8 flex-1 ml-12">
-//             {navItems.map((item) => (
-//               <div key={item.name} className="relative group">
-//                 <a
-//                   href={item.path || "#"}
-//                   className="text-sm font-medium text-foreground hover:text-primary transition-colors py-2 flex items-center gap-1"
-//                 >
-//                   {item.name}
-//                   {item.children && <ChevronDown className="w-4 h-4" />}
-//                 </a>
-
-//                 {/* Dropdown Menu */}
-//                 {item.children && (
-//                   <div className="absolute left-0 mt-0 w-56 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-border">
-//                     <div className="py-2">
-//                       {item.children.map((child) => (
-//                         <a
-//                           key={child.name}
-//                           href={child.path}
-//                           target={child.external ? "_blank" : undefined}
-//                           rel={child.external ? "noopener noreferrer" : undefined}
-//                           className="block px-4 py-2.5 text-sm text-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-//                         >
-//                           {child.name}
-//                         </a>
-//                       ))}
-//                     </div>
-//                   </div>
-//                 )}
-//               </div>
-//             ))}
-//           </nav>
-
-//           {/* Auth Buttons & Mobile Menu */}
-//           <div className="flex items-center gap-4">
-//             {!user ? (
-//               <>
-//                 <a
-//                   href="/login"
-//                   className="hidden sm:block px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
-//                 >
-//                   Login
-//                 </a>
-//                 <a
-//                   href="/register"
-//                   className="hidden sm:block px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
-//                 >
-//                   Register
-//                 </a>
-//               </>
-//             ) : (
-//               <button className="px-4 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors">
-//                 Logout
-//               </button>
-//             )}
-
-//             {/* Mobile Menu Button */}
-//             <button
-//               onClick={() => setMobileOpen(!mobileOpen)}
-//               className="lg:hidden p-2 hover:bg-accent rounded-lg transition-colors"
-//             >
-//               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-//             </button>
-//           </div>
-//         </div>
-
-//         {/* Mobile Navigation */}
-//         {mobileOpen && (
-//           <nav className="lg:hidden border-t border-border py-4 space-y-1">
-//             {navItems.map((item) => (
-//               <div key={item.name}>
-//                 {item.children ? (
-//                   <button
-//                     onClick={() =>
-//                       setActiveDropdown(
-//                         activeDropdown === item.name ? null : item.name
-//                       )
-//                     }
-//                     className="w-full text-left px-4 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-lg flex items-center justify-between"
-//                   >
-//                     {item.name}
-//                     <ChevronDown
-//                       className={`w-4 h-4 transition-transform ${
-//                         activeDropdown === item.name ? "rotate-180" : ""
-//                       }`}
-//                     />
-//                   </button>
-//                 ) : (
-//                   <a
-//                     href={item.path}
-//                     className="block px-4 py-2 text-sm text-foreground hover:bg-accent rounded-lg"
-//                     onClick={() => setMobileOpen(false)}
-//                   >
-//                     {item.name}
-//                   </a>
-//                 )}
-
-//                 {/* Mobile Dropdown */}
-//                 {item.children && activeDropdown === item.name && (
-//                   <div className="bg-secondary rounded-lg mt-2 ml-4 space-y-1">
-//                     {item.children.map((child) => (
-//                       <a
-//                         key={child.name}
-//                         href={child.path}
-//                         target={child.external ? "_blank" : undefined}
-//                         rel={child.external ? "noopener noreferrer" : undefined}
-//                         className="block px-4 py-2 text-sm text-foreground/80 hover:text-primary rounded-lg"
-//                         onClick={() => setMobileOpen(false)}
-//                       >
-//                         {child.name}
-//                       </a>
-//                     ))}
-//                   </div>
-//                 )}
-//               </div>
-//             ))}
-
-//             {/* Mobile Auth Buttons */}
-//             {!user && (
-//               <div className="flex gap-2 pt-4 border-t border-border">
-//                 <a
-//                   href="/login"
-//                   className="flex-1 px-4 py-2 text-sm font-medium text-foreground hover:bg-accent rounded-lg"
-//                   onClick={() => setMobileOpen(false)}
-//                 >
-//                   Login
-//                 </a>
-//                 <a
-//                   href="/register"
-//                   className="flex-1 px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary/90"
-//                   onClick={() => setMobileOpen(false)}
-//                 >
-//                   Register
-//                 </a>
-//               </div>
-//             )}
-//           </nav>
-//         )}
-//       </div>
-//     </header>
-//   );
-// }
-
-
 import React, { useState, useEffect, } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/useAuth";
 import logo from "../assets/tu.png";
-import ExamForm from "../pages/ExamForm";
-import ResultSearch from "../pages/ResultSearch";
+import {  FaMapMarkerAlt, FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 import ExamRoutineGallery from "../pages/ExamRoutineGallery";
 
 /* ── Shared design tokens (must match HomePageTU) ── */
@@ -568,21 +116,32 @@ const S = `
   .tu-link:hover .tu-link__chevron { transform: rotate(180deg); opacity: 1; }
 
   /* Dropdown */
-  .tu-drop {
-    position: absolute; top: calc(100% + 10px); left: 50%;
-    transform: translateX(-50%);
-    background: #fff; border-radius: 14px;
-    box-shadow: 0 16px 50px rgba(10,22,40,.15);
-    border: 1px solid rgba(10,22,40,.07);
-    min-width: 230px; padding: .5rem;
-    opacity: 0; visibility: hidden; pointer-events: none;
-    transition: all .22s cubic-bezier(.4,0,.2,1);
-    transform: translateX(-50%) translateY(-6px);
-  }
-  .tu-link:hover .tu-drop {
-    opacity: 1; visibility: visible; pointer-events: auto;
-    transform: translateX(-50%) translateY(0);
-  }
+  .tu-link {
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.tu-drop {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 16px 50px rgba(10,22,40,.15);
+  min-width: 230px;
+  padding: .5rem;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: all .22s ease;
+}
+
+.tu-link:hover .tu-drop {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
   /* Arrow */
   .tu-drop::before {
     content: ''; position: absolute; top: -6px; left: 50%;
@@ -813,8 +372,8 @@ export default function TuHeader() {
       examMenu: true,
       children: [
         { name: "Exam Routine", key: "exam-routine" },
-        { name: "Result",       key: "result" },
-        { name: "Exam Form",    key: "exam-form" },
+        // { name: "Result",       key: "result" },
+        // { name: "Exam Form",    key: "exam-form" },
       ],
     },
   ];
@@ -843,11 +402,11 @@ export default function TuHeader() {
         {/* ── Top utility bar ── */}
         <div className="tu-topbar">
           <div className="tu-topbar__left">
-            <span>📍 Kirtipur, Kathmandu, Nepal</span>
+          <span><FaMapMarkerAlt/></span><span> Kirtipur, Kathmandu, Nepal</span>
             <div className="tu-topbar__sep" />
-            <span>📞 +977-1-4330433</span>
+           <span><FaPhoneAlt/></span> <span> +977-1-4330433</span>
             <div className="tu-topbar__sep" />
-            <span>✉️ info@tu.edu.np</span>
+            <span>< FaEnvelope /></span><span> info@tu.edu.np</span>
           </div>
           <div className="tu-topbar__right">
             <a href="/aboutus" className="tu-topbar__link">About</a>
@@ -919,12 +478,12 @@ export default function TuHeader() {
             {!user ? (
               <>
                 <NavLink to="/login" className="tu-auth__login">Login</NavLink>
-                <NavLink to="/register" className="tu-auth__register">Register</NavLink>
+                {/* <NavLink to="/register" className="tu-auth__register">Register</NavLink> */}
               </>
             ) : (
               <>
-                {user.role === "admin"   && <NavLink to="/dashboard" className="tu-auth__dash">Dashboard</NavLink>}
-                {user.role === "student" && <NavLink to="/student"   className="tu-auth__dash">My Dashboard</NavLink>}
+                {/* {user.role === "admin"   && <NavLink to="/dashboard" className="tu-auth__dash">Dashboard</NavLink>} */}
+                {/* {user.role === "student" && <NavLink to="/student"   className="tu-auth__dash">My Dashboard</NavLink>} */}
                 <button onClick={logout} className="tu-auth__logout">Logout</button>
               </>
             )}
@@ -1018,9 +577,9 @@ export default function TuHeader() {
           <div className="tu-modal-bg" onClick={() => setOpenExamSection(null)}>
             <div className="tu-modal" onClick={e => e.stopPropagation()}>
               <button className="tu-modal__close" onClick={() => setOpenExamSection(null)}>✕</button>
-              {openExamSection === "exam-form"    && <ExamForm />}
+              {/* {openExamSection === "exam-form"    && <ExamForm />} */}
               {openExamSection === "exam-routine" && <ExamRoutineGallery />}
-              {openExamSection === "result"       && <ResultSearch />}
+              {/* {openExamSection === "result"       && <ResultSearch />} */}
             </div>
           </div>
         )}

@@ -63,8 +63,10 @@ const existingForm = await ExamForm.findOne({
   studentId: req.user.id,
   createdAt: {
     $gte: config.startTime,
-    $lte: config.endTime
-  }
+    $lte: config.endTime,
+    
+  },
+  
 });
 
 if (existingForm) {
@@ -96,7 +98,7 @@ const draft = await ExamForm.create({
   paymentStatus: "pending",
 });
 const totalForms = await ExamForm.countDocuments({ studentId: req.user.id });
-      console.log("✅ Draft created:", draft._id);
+      // console.log("✅ Draft created:", draft._id);
 
       res.json({ 
         success: true, 
@@ -163,6 +165,8 @@ formData.citizenshipDocument = req.files.citizenshipDocument?.[0] ? `/uploads/${
     }
   }
 );
+
+// POST /api/forms - Final form submission (after payment)
 
 // ============================================
 // GET /api/forms - Get all forms (Admin)
@@ -679,6 +683,30 @@ router.get("/form-config", async (req, res) => {
 //     res.status(500).json({ message: "Server Error" });
 //   }
 // });
+// ============================================
+// DELETE /api/forms/:id - Delete a form
+// ============================================
+router.delete("/forms/delete/:id", auth(), async (req, res) => {
+  try {
+    const form = await ExamForm.findById(req.params.id);
+
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    // Only allow student who submitted OR admin (optional: check role)
+    if (req.user.role !== "admin" && form.studentId.toString() !== req.user.id.toString()) {
+      return res.status(403).json({ message: "Unauthorized to delete this form" });
+    }
+
+    await form.deleteOne(); // delete the document
+    res.json({ message: "Form deleted successfully", formId: req.params.id });
+
+  } catch (err) {
+    console.error("Error deleting form:", err);
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+});
 module.exports = router;
 
 

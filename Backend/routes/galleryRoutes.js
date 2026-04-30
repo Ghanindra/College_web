@@ -16,7 +16,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // POST - Upload Image
-router.post("/", upload.single("image"), auth, async (req, res) => {
+router.post("/", upload.single("image"), auth(), async (req, res) => {
   const { title, description, category } = req.body; // include category
   const imageUrl = req.file ? `/uploads/${req.file.filename}` : "";
 
@@ -29,7 +29,7 @@ router.post("/", upload.single("image"), auth, async (req, res) => {
 
 router.put(
   "/:id",
-  auth,
+  auth(),
   upload.single("image"),        // optional single file
   async (req, res) => {
     const update = {
@@ -54,7 +54,7 @@ router.get("/", async (req, res) => {
 });
 
 // DELETE - Remove Image
-router.delete("/:id",auth, async (req, res) => {
+router.delete("/:id",auth(), async (req, res) => {
   await Gallery.findByIdAndDelete(req.params.id);
   res.json({ message: "Image deleted" });
 });

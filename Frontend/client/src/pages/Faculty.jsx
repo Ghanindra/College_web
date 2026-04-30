@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import Base_Url from '../api/Base_Url'
+import {SERVER_URL} from '../api/Base_Url'
 const PAGE_SIZE = 5;
 
 export default function Faculty() {
@@ -24,7 +25,7 @@ export default function Faculty() {
 
   const fetchFaculties = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/faculties", {
+      const res = await axios.get(`${Base_Url}/faculties`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       let data = res.data;
@@ -40,7 +41,7 @@ export default function Faculty() {
       setFaculties(pagedData);
       setTotalPages(Math.ceil(data.length / PAGE_SIZE));
     } catch (err) {
-      setError("Failed to fetch faculties");
+      setError("Failed to fetch faculties",err);
     }
   };
 
@@ -67,14 +68,14 @@ export default function Faculty() {
   try {
     if (editingId) {
       await axios.put(
-        `http://localhost:5000/api/faculties/${editingId}`,
+        `${Base_Url}/faculties/${editingId}`,
         dataToSend,
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}`, "Content-Type": "application/json" },
         }
       );
     } else {
-      await axios.post("http://localhost:5000/api/faculties", dataToSend, {
+      await axios.post(`${Base_Url}/faculties`, dataToSend, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
     }
@@ -108,12 +109,12 @@ export default function Faculty() {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this faculty?")) {
       try {
-        await axios.delete(`http://localhost:5000/api/faculties/${id}`, {
+        await axios.delete(`${Base_Url}/faculties/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchFaculties();
       } catch (err) {
-        setError("Failed to delete faculty");
+        setError("Failed to delete faculty",err);
       }
     }
   };

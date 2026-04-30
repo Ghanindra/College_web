@@ -1,46 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './adminaddresult.css';
+import React, { useState } from "react";
+import axios from "axios";
+import Base_Url from '../api/Base_Url'
 import { toast } from "react-toastify";
+
 export default function AdminAddResult() {
   const [formData, setFormData] = useState({
-    symbolNo: '',
-    studentName: '',
-    examYear: '',
-    subjects: [{ code: '', title: '', marksObtained: '', maxMarks: '' }],
+    symbolNo: "",
+    studentName: "",
+    examYear: "",
+    subjects: [{ code: "", title: "", marksObtained: "", maxMarks: "" }],
     totalMarks: 0,
     percentage: 0,
-    grade: ''
+    grade: "",
   });
-  const [message, setMessage] = useState('');
 
   const calculateResult = (subjects) => {
     let totalMarks = 0;
     let totalMax = 0;
 
     subjects.forEach((s) => {
-      const marks = parseFloat(s.marksObtained) || 0;
-      const max = parseFloat(s.maxMarks) || 0;
-      totalMarks += marks;
-      totalMax += max;
+      totalMarks += parseFloat(s.marksObtained) || 0;
+      totalMax += parseFloat(s.maxMarks) || 0;
     });
 
     const percentage = totalMax ? (totalMarks / totalMax) * 100 : 0;
-    let grade = '';
-
-    if (percentage >= 90) grade = 'A+';
-    else if (percentage >= 80) grade = 'A';
-    else if (percentage >= 70) grade = 'B+';
-    else if (percentage >= 60) grade = 'B';
-    else if (percentage >= 50) grade = 'C';
-    else if (percentage >= 40) grade = 'D';
-    else grade = 'F';
+    let grade = "";
+    if (percentage >= 90) grade = "A+";
+    else if (percentage >= 80) grade = "A";
+    else if (percentage >= 70) grade = "B+";
+    else if (percentage >= 60) grade = "B";
+    else if (percentage >= 50) grade = "C";
+    else if (percentage >= 40) grade = "D";
+    else grade = "F";
 
     return { totalMarks, percentage: percentage.toFixed(2), grade };
   };
 
   const handleChange = (e, index, field) => {
-    if (field === 'subject') {
+    if (field === "subject") {
       const subjects = [...formData.subjects];
       subjects[index][e.target.name] = e.target.value;
       const { totalMarks, percentage, grade } = calculateResult(subjects);
@@ -53,7 +50,10 @@ export default function AdminAddResult() {
   const addSubject = () => {
     setFormData({
       ...formData,
-      subjects: [...formData.subjects, { code: '', title: '', marksObtained: '', maxMarks: '' }]
+      subjects: [
+        ...formData.subjects,
+        { code: "", title: "", marksObtained: "", maxMarks: "" },
+      ],
     });
   };
 
@@ -64,7 +64,7 @@ export default function AdminAddResult() {
         code: s.code,
         title: s.title,
         marksObtained: Number(s.marksObtained),
-        maxMarks: Number(s.maxMarks)
+        maxMarks: Number(s.maxMarks),
       }));
 
       const payload = {
@@ -73,62 +73,170 @@ export default function AdminAddResult() {
         subjects: formattedSubjects,
         totalMarks: Number(formData.totalMarks),
         percentage: Number(formData.percentage),
-        grade: formData.grade
+        grade: formData.grade,
       };
 
-      await axios.post('http://localhost:5000/api/results/add', payload);
-      toast.success('Result added successfully!');
+      await axios.post(`${Base_Url}/results/add`, payload);
+      toast.success("Result added successfully!");
       setFormData({
-        symbolNo: '',
-        studentName: '',
-        examYear: '',
-        subjects: [{ code: '', title: '', marksObtained: '', maxMarks: '' }],
+        symbolNo: "",
+        studentName: "",
+        examYear: "",
+        subjects: [{ code: "", title: "", marksObtained: "", maxMarks: "" }],
         totalMarks: 0,
         percentage: 0,
-        grade: ''
+        grade: "",
       });
     } catch (error) {
-      toast.error('Error adding result: ' + (error.response?.data?.error || error.message));
+      toast.error(
+        "Error adding result: " + (error.response?.data?.error || error.message)
+      );
     }
   };
 
   return (
-    <div className="admin-add-result">
-      <h2>Admin – Add Result</h2>
-      {message && (
-        <p className={`message ${message.includes("success") ? "success" : "error"}`}>
-          {message}
-        </p>
-      )}
-
-      <form onSubmit={handleSubmit} className="form-card">
-        <div className="form-grid">
-          <input name="symbolNo" placeholder="Symbol Number" value={formData.symbolNo} onChange={handleChange} required />
-          <input name="studentName" placeholder="Student Name" value={formData.studentName} onChange={handleChange} required />
-          <input type="number" name="examYear" placeholder="Exam Year" value={formData.examYear} onChange={handleChange} required />
+<div className="flex justify-center ml-8 md:ml-18 lg:ml-24 px-4 md:px-8 lg:px-16 py-8 bg-gray-100 min-h-screen">
+      <div className="w-full max-w-4xl bg-white shadow-lg rounded-xl border border-gray-200 overflow-hidden">
+        {/* Header */}
+        <div className="bg-indigo-600 text-white px-6 py-4">
+          <h1 className="text-2xl font-semibold">Add Student Result</h1>
+          <p className="text-sm opacity-90">
+            Fill student result details and submit
+          </p>
         </div>
 
-        <div className="subject-section">
-          <h3>Subjects</h3>
-          {formData.subjects.map((subj, idx) => (
-            <div key={idx} className="subject-row">
-              <input name="code" placeholder="Code" value={subj.code} onChange={(e) => handleChange(e, idx, 'subject')} required />
-              <input name="title" placeholder="Title" value={subj.title} onChange={(e) => handleChange(e, idx, 'subject')} required />
-              <input name="marksObtained" placeholder="Marks" type="number" value={subj.marksObtained} onChange={(e) => handleChange(e, idx, 'subject')} required />
-              <input name="maxMarks" placeholder="Max" type="number" value={subj.maxMarks} onChange={(e) => handleChange(e, idx, 'subject')} required />
+        <form onSubmit={handleSubmit} className="p-6 space-y-8">
+          {/* Student Information */}
+          <div className="space-y-2">
+            <h2 className="font-semibold text-lg text-gray-700">
+              Student Information
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input
+                type="text"
+                name="symbolNo"
+                placeholder="Symbol Number"
+                value={formData.symbolNo}
+                onChange={handleChange}
+                required
+                className="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+              <input
+                type="text"
+                name="studentName"
+                placeholder="Student Name"
+                value={formData.studentName}
+                onChange={handleChange}
+                required
+                className="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+              <input
+                type="number"
+                name="examYear"
+                placeholder="Exam Year"
+                value={formData.examYear}
+                onChange={handleChange}
+                required
+                className="border px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
             </div>
-          ))}
-          <button type="button" onClick={addSubject} className="btn-add-subject">+ Add Subject</button>
-        </div>
+          </div>
 
-        <div className="form-grid" style={{ marginTop: 20 }}>
-          <input name="totalMarks" placeholder="Total Marks" type="number" value={formData.totalMarks} readOnly />
-          <input name="percentage" placeholder="Percentage" type="number" step="0.01" value={formData.percentage} readOnly />
-          <input name="grade" placeholder="Grade" value={formData.grade} readOnly />
-        </div>
+          {/* Subjects */}
+          <div className="space-y-2">
+            <h2 className="font-semibold text-lg text-gray-700">Subject Marks</h2>
+            <div className="space-y-3">
+              {formData.subjects.map((subj, idx) => (
+                <div
+                  key={idx}
+                  className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"
+                >
+                  <input
+                    name="code"
+                    placeholder="Code"
+                    value={subj.code}
+                    onChange={(e) => handleChange(e, idx, "subject")}
+                    required
+                    className="border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                  <input
+                    name="title"
+                    placeholder="Title"
+                    value={subj.title}
+                    onChange={(e) => handleChange(e, idx, "subject")}
+                    required
+                    className="border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                  <input
+                    name="marksObtained"
+                    type="number"
+                    placeholder="Marks Obtained"
+                    value={subj.marksObtained}
+                    onChange={(e) => handleChange(e, idx, "subject")}
+                    required
+                    className="border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                  <input
+                    name="maxMarks"
+                    type="number"
+                    placeholder="Max Marks"
+                    value={subj.maxMarks}
+                    onChange={(e) => handleChange(e, idx, "subject")}
+                    required
+                    className="border px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                  />
+                </div>
+              ))}
+            </div>
 
-        <button type="submit" className="btn-submit">Submit Result</button>
-      </form>
+            <button
+              type="button"
+              onClick={addSubject}
+              className="mt-2 inline-block px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            >
+              + Add Subject
+            </button>
+          </div>
+
+          {/* Result Summary */}
+          <div className="space-y-2">
+            <h2 className="font-semibold text-lg text-gray-700">
+              Result Summary
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <input
+                readOnly
+                name="totalMarks"
+                value={formData.totalMarks}
+                placeholder="Total Marks"
+                className="bg-gray-100 border px-4 py-2 rounded-lg"
+              />
+              <input
+                readOnly
+                name="percentage"
+                value={formData.percentage}
+                placeholder="Percentage"
+                className="bg-gray-100 border px-4 py-2 rounded-lg"
+              />
+              <input
+                readOnly
+                name="grade"
+                value={formData.grade}
+                placeholder="Grade"
+                className="bg-gray-100 border px-4 py-2 rounded-lg"
+              />
+            </div>
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition"
+          >
+            Submit Result
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

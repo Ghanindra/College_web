@@ -7,8 +7,10 @@ import SidebarItem from "../components/SidebarItem";
 import DashboardOverview from "../components/DashboardOverview";
 import FormDetails from "../components/FormDetails";
 import ResultSearch from "../pages/ResultSearch";
+import { useNavigate } from "react-router-dom";
+import Base_Url from '../api/Base_Url'
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = `${Base_Url}`;
 
 export default function StudentDashboard() {
   const {  logout, token } = useAuth();
@@ -16,7 +18,14 @@ export default function StudentDashboard() {
   const [activePage, setActivePage] = useState("dashboard");
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
+const navigate = useNavigate();
 
+const handleLogout = () => {
+  logout();
+  setTimeout(() => {
+    navigate("/", { replace: true });
+  }, 0);
+};
   // ================= FETCH STUDENT FORM =================
   useEffect(() => {
     const fetchForm = async () => {
@@ -82,7 +91,7 @@ console.log("form data",res.data.form);
         />
 
         <button
-          onClick={logout}
+          onClick={handleLogout}
           style={{
             marginTop: "40px",
             background: "#dc2626",

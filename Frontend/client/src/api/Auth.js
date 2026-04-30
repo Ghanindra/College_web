@@ -1,6 +1,8 @@
 import axios from "axios";
-
-const API_URL = "http://localhost:5000/api/student"; // change if needed
+import Base_Url from '../api/Base_Url'
+// const API_URL = "http://localhost:5000/api/student"; // change if needed
+const API_URL = `${Base_Url}/student`; // change if needed
+// console.log('api url',API_URL);
 
 // Register user/admin
 export const register = async (data) => {

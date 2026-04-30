@@ -2,7 +2,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-
+import Base_Url from '../api/Base_Url'
+import {SERVER_URL} from '../api/Base_Url'
 const PAGE_SIZE = 5;
 
 export default function Events() {
@@ -27,7 +28,7 @@ export default function Events() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/events", {
+      const res = await axios.get(`${Base_Url}/events`, {
         params: { page, limit: PAGE_SIZE, search },
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -44,7 +45,6 @@ export default function Events() {
     fetchEvents();
   }, [page, search]);
 
-  // Handle form changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -52,18 +52,13 @@ export default function Events() {
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setForm((prev) => ({
-        ...prev,
-        imageFile: file,
-        imagePreview: URL.createObjectURL(file),
-      }));
-    } else {
-      setForm((prev) => ({ ...prev, imageFile: null, imagePreview: null }));
-    }
+    setForm((prev) => ({
+      ...prev,
+      imageFile: file || null,
+      imagePreview: file ? URL.createObjectURL(file) : null,
+    }));
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -75,17 +70,31 @@ export default function Events() {
       if (form.imageFile) formData.append("image", form.imageFile);
 
       const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" },
       };
 
       if (editingId) {
-        await axios.put(`http://localhost:5000/api/events/${editingId}`, formData, config);
-        toast.success("Event updated successfully");
+        // await axios.put(`${Base_Url}/events/${editingId}`, formData, config);
+        // toast.success("Event updated successfully");
+        const res = await axios.put(
+  `${Base_Url}/events/${editingId}`,
+  formData,
+  config
+);
+console.log('event data',res.data);
+
+toast.success("Event updated successfully");
+
+const updatedEvent = res.data.event;
+
+setEvents((prev) =>
+  prev.map((ev) =>
+    ev._id === editingId ? updatedEvent : ev
+  )
+);
+        
       } else {
-        await axios.post("http://localhost:5000/api/events", formData, config);
+        await axios.post(`${Base_Url}/events`, formData, config);
         toast.success("Event added successfully");
       }
 
@@ -112,7 +121,7 @@ export default function Events() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this event?")) return;
     try {
-      await axios.delete(`http://localhost:5000/api/events/${id}`, {
+      await axios.delete(`${Base_Url}/events/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Event deleted successfully");
@@ -124,23 +133,28 @@ export default function Events() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 px-4 py-10">
-      <div className="max-w-7xl mx-auto">
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar placeholder */}
+      <div className="w-64">
+        {/* <Sidebar /> */}
+      </div>
 
+      {/* Main content */}
+      <div className="flex-1 px-4 py-10 md:px-8 lg:px-12 overflow-y-auto">
         {/* Header */}
-        <div className="mb-8 text-center">
+        <div className="mb-8 text-center md:text-left">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Events Management</h2>
           <p className="text-gray-600 mt-2">Create, edit, and manage university events</p>
         </div>
 
         {/* Search */}
-        <div className="mb-8 flex justify-center">
+        <div className="mb-8 flex justify-center md:justify-start">
           <input
             type="text"
             placeholder="Search events..."
             value={search}
             onChange={(e) => { setPage(1); setSearch(e.target.value); }}
-            className="w-full md:w-96 px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-300"
+            className="w-full sm:w-96 px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm hover:shadow-md transition-all duration-300"
           />
         </div>
 
@@ -163,10 +177,9 @@ export default function Events() {
                 onChange={handleChange}
                 placeholder="Enter event title"
                 required
-                className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
               />
             </div>
-
             <div className="flex flex-col space-y-2">
               <label className="text-gray-700 font-semibold text-sm">Date</label>
               <input
@@ -175,7 +188,7 @@ export default function Events() {
                 value={form.date}
                 onChange={handleChange}
                 required
-                className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-300"
+                className="px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-300"
               />
             </div>
           </div>
@@ -189,7 +202,7 @@ export default function Events() {
               rows={4}
               placeholder="Enter event description"
               required
-              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none transition-all duration-300"
+              className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition-all duration-300"
             />
           </div>
 
@@ -206,7 +219,7 @@ export default function Events() {
           {form.imagePreview && (
             <div className="mt-2">
               <img
-                src={form.imagePreview.startsWith("blob:") ? form.imagePreview : `http://localhost:5000${form.imagePreview}`}
+                src={form.imagePreview.startsWith("blob:") ? form.imagePreview : `${SERVER_URL}${form.imagePreview}`}
                 alt="Preview"
                 className="w-48 h-48 object-cover rounded-xl border border-gray-200 shadow-md"
               />
@@ -216,7 +229,7 @@ export default function Events() {
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
             <button
               type="submit"
-              className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-300"
+              className="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all duration-300"
             >
               {editingId ? "Update Event" : "Add Event"}
             </button>
@@ -230,9 +243,10 @@ export default function Events() {
               </button>
             )}
           </div>
+
         </form>
 
-        {/* Events Cards */}
+        {/* Events Grid */}
         {loading ? (
           <div className="flex justify-center py-12">
             <p className="text-gray-500 text-lg font-medium">Loading events...</p>
@@ -248,7 +262,7 @@ export default function Events() {
                 {event.imageUrl && (
                   <div className="relative overflow-hidden bg-gray-200 h-48">
                     <img
-                      src={event.imageUrl.startsWith("http") ? event.imageUrl : `http://localhost:5000${event.imageUrl}`}
+                      src={event.imageUrl.startsWith("http") ? event.imageUrl : `${SERVER_URL}${event.imageUrl}`}
                       alt={event.title}
                       className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                     />
@@ -258,7 +272,7 @@ export default function Events() {
                   <h4 className="text-lg font-bold text-gray-900 line-clamp-2">{event.title}</h4>
                   <p className="text-gray-600 text-sm line-clamp-2">{event.description}</p>
                   <p className="text-gray-500 text-xs">{new Date(event.date).toLocaleDateString()}</p>
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt-3 flex-wrap">
                     <button onClick={() => startEdit(event)} className="flex-1 px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-700 transition-all duration-300">
                       Edit
                     </button>
@@ -273,7 +287,7 @@ export default function Events() {
         )}
 
         {/* Pagination */}
-        <div className="flex justify-center items-center gap-6 mt-10">
+        <div className="flex justify-center items-center gap-6 mt-10 flex-wrap">
           <button
             disabled={page === 1}
             onClick={() => setPage((p) => Math.max(p - 1, 1))}

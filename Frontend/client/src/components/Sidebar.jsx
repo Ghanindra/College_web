@@ -1,7 +1,22 @@
 // Sidebar.jsx
 import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+
+import { useAuth } from "../context/useAuth";
 import { toast } from "react-toastify";
+import {
+  FiGrid,
+  FiBell,
+  FiCalendar,
+  FiImage,
+  FiFileText,
+  FiSettings,
+  FiBarChart2,
+  FiUserPlus,
+  FiLogOut
+} from "react-icons/fi";
+
+import { FaGraduationCap } from "react-icons/fa";
 
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
@@ -50,28 +65,31 @@ const STYLES = `
     from { transform: translateX(-100%); opacity: 0; }
     to   { transform: translateX(0);     opacity: 1; }
   }
-  .sb-anim { animation: slideIn .25s cubic-bezier(.4,0,.2,1) both; }
+  .sb-anim { animation: slideIn .25s cubic-bezier(.4,0,.2,1) both; will-change: transform; }
 `;
 
 const NAV = [
-  { to: "/dashboard",            label: "Dashboard",        icon: "⊞", end: true },
-  { to: "/dashboard/notices",    label: "Notices",          icon: "📢" },
-  { to: "/dashboard/events",     label: "Events",           icon: "📅" },
-  { to: "/dashboard/gallery",    label: "Gallery",          icon: "🖼️"  },
-  { to: "/dashboard/examform",   label: "Exam Forms",       icon: "📄" },
-  { to: "/dashboard/formconfig", label: "Allow Exam Form",  icon: "⚙️"  },
-  { to: "/dashboard/addresult",  label: "Add Result",       icon: "📊" },
-  { to: "/dashboard/addroutine", label: "Add Routine",      icon: "🗓️"  },
-  { to: "/dashboard/register",   label: "Register",         icon: "👤" },
+  { to: "/dashboard", label: "Dashboard", icon: <FiGrid />, end: true },
+  { to: "/dashboard/notices", label: "Notices", icon: <FiBell /> },
+  { to: "/dashboard/events", label: "Events", icon: <FiCalendar /> },
+  { to: "/dashboard/gallery", label: "Gallery", icon: <FiImage /> },
+  { to: "/dashboard/examform", label: "Exam Forms", icon: <FiFileText /> },
+  { to: "/dashboard/formconfig", label: "Allow Exam Form", icon: <FiSettings /> },
+  { to: "/dashboard/addresult", label: "Add Result", icon: <FiBarChart2 /> },
+  { to: "/dashboard/addroutine", label: "Add Routine", icon: <FiCalendar /> },
+  { to: "/dashboard/register", label: "Register", icon: <FiUserPlus /> },
 ];
 
 function SidebarInner({ onClose }) {
+  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-    toast.success("Admin Logout Successfully");
+    logout();
+    setTimeout(() => {
+      navigate("/", { replace: true });
+      toast.success("Admin logout successfully");
+    }, 0);
   };
 
   return (
@@ -87,7 +105,7 @@ function SidebarInner({ onClose }) {
             className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ background: "#0a1628" }}
           >
-            <span className="text-sm">🎓</span>
+            <FaGraduationCap size={16} color="white" />
           </div>
           <div>
             <p className="font-bold text-sm text-slate-800 leading-tight">
@@ -137,7 +155,7 @@ function SidebarInner({ onClose }) {
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-500 hover:bg-red-50 transition-colors"
           style={{ border: "1px solid #fee2e2", background: "transparent", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
         >
-          <span className="text-base">→</span>
+          <span className="text-base"><FiLogOut /></span>
           Logout
         </button>
       </div>
@@ -189,7 +207,7 @@ export default function Sidebar() {
           style={{ background: "rgba(15,23,42,.4)", backdropFilter: "blur(4px)" }}
         >
           <div
-            className="sb-anim absolute top-0 left-0 bottom-0 w-[72vw] max-w-[280px] bg-white"
+            className="sb-anim absolute top-0 left-0 bottom-0 w-[80vw] max-w-[300px] bg-white"
             style={{ boxShadow: "4px 0 32px rgba(0,0,0,.12)" }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -200,8 +218,8 @@ export default function Sidebar() {
 
       {/* Desktop sidebar */}
       <aside
-        className="sb hidden lg:flex flex-col fixed top-0 left-0 bottom-0 w-[220px] xl:w-[240px] z-30 bg-white"
-        style={{ borderRight: "1px solid #f1f5f9", boxShadow: "2px 0 16px rgba(0,0,0,.04)" }}
+        className="sb hidden lg:flex flex-col fixed top-0 left-0 bottom-0 w-[220px] xl:w-[240px] z-30 bg-white lg:shadow-[2px_0_16px_rgba(0,0,0,0.04)]"
+        style={{ borderRight: "1px solid #f1f5f9" }}
       >
         <SidebarInner />
       </aside>

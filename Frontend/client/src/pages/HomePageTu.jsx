@@ -8,7 +8,9 @@ import hero2 from "../assets/hero2.jpg";
 import hero3 from "../assets/hero3.jpg";
 import hero4 from "../assets/hero4.png";
 import axios from "axios";
-
+import Footer from "../components/Footer";
+import Base_Url from '../api/Base_Url'
+import {SERVER_URL} from '../api/Base_Url'
 /* ─── Injected Styles ─── */
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
@@ -692,9 +694,9 @@ export default function HomePageTU() {
   const [exiting,     setExiting]     = useState(false);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/activity").then(r => setActivities(r.data || [])).catch(() => {});
-    axios.get("http://localhost:5000/api/notices?limit=4").then(r => setLatestNews(r.data.notices || [])).catch(() => {});
-    axios.get("http://localhost:5000/api/events?limit=4").then(r => setEvents(r.data.events || [])).catch(() => {});
+    axios.get(`${Base_Url}/activity`).then(r => setActivities(r.data || [])).catch(() => {});
+    axios.get(`${Base_Url}/notices?limit=4`).then(r => setLatestNews(r.data.notices || [])).catch(() => {});
+    axios.get(`${Base_Url}/events?limit=4`).then(r => setEvents(r.data.events || [])).catch(() => {});
   }, []);
 
   const heroSlides = [
@@ -814,7 +816,7 @@ export default function HomePageTU() {
         <ul className="ev-list">
           {events.map((ev) => (
             <li key={ev._id} className="ev-row">
-              <Link to={`/events/${ev._id}`} className="ev-row__link">
+              <Link to={`/events`} className="ev-row__link">
                 <div className="ev-cal">
                   <div className="ev-cal__day">{new Date(ev.date).getDate()}</div>
                   <div className="ev-cal__mon">{new Date(ev.date).toLocaleString("default", { month: "short" })}</div>
@@ -884,7 +886,7 @@ export default function HomePageTU() {
               <div key={item._id} className="gcard">
                 <div className="gcard__img-wrap">
                   {item.imageUrl
-                    ? <img src={`http://localhost:5000${item.imageUrl}`} alt={item.title} />
+                    ? <img src={`${SERVER_URL}${item.imageUrl}`} alt={item.title} />
                     : <div className="gcard__no-img"><span className="gcard__no-img-icon">{item.type === "notice" ? "📢" : "📅"}</span></div>
                   }
                   <span className={`gcard__pill${item.type === "event" ? " gcard__pill--event" : ""}`}>
@@ -907,90 +909,8 @@ export default function HomePageTU() {
           </div>
         </section>
 
-        {/* ══ FOOTER ══ */}
-        <div className="footer-bridge" />
-        <footer className="footer">
-          <div className="footer__nl-band">
-            <div className="footer__nl-text">
-              <h4>Stay Connected with Tribhuvan University</h4>
-              <p>Get the latest notices, exam schedules, and academic updates directly in your inbox.</p>
-            </div>
-            <div className="footer__nl-form">
-              <input type="email" placeholder="Enter your email address" className="footer__nl-input" />
-              <button className="footer__nl-btn">Subscribe</button>
-            </div>
-          </div>
-          <div className="footer__main">
-            <div>
-              <p className="footer__brand">Tribhuvan <span>University</span></p>
-              <span className="footer__tagline">Nepal's Premier Institution · Est. 1959</span>
-              <p className="footer__desc">
-                Dedicated to advancing knowledge, fostering innovation, and serving
-                the people of Nepal through quality education and impactful research.
-              </p>
-              <div className="footer__socials">
-                <a href="https://facebook.com"  target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="Facebook">𝗙</a>
-                <a href="https://twitter.com"   target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="Twitter">𝕏</a>
-                <a href="https://youtube.com"   target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="YouTube">▶</a>
-                <a href="https://linkedin.com"  target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="LinkedIn">in</a>
-              </div>
-            </div>
-            <div>
-              <p className="footer__col-title">About</p>
-              <ul className="footer__links">
-                <li><Link to="/aboutus">About TU</Link></li>
-                <li><Link to="/history">History</Link></li>
-                <li><Link to="/vision">Vision &amp; Mission</Link></li>
-                <li><Link to="/leadership">Leadership</Link></li>
-                <li><Link to="/tuconvocation">Convocation</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="footer__col-title">Academics</p>
-              <ul className="footer__links">
-                <li><Link to="/research">Research</Link></li>
-                <li><Link to="/events">Events</Link></li>
-                <li><Link to="/news">Notices</Link></li>
-                <li><Link to="/activities">Activities</Link></li>
-                <li><Link to="/gallery">Gallery</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="footer__col-title">Contact</p>
-              <div>
-                <div className="footer__ci"><span className="footer__ci-ic">📍</span><span>Kirtipur, Kathmandu, Nepal</span></div>
-                <div className="footer__ci"><span className="footer__ci-ic">📞</span><a href="tel:+97714330433">+977-1-4330433</a></div>
-                <div className="footer__ci"><span className="footer__ci-ic">✉️</span><a href="mailto:info@tu.edu.np">info@tu.edu.np</a></div>
-                <div className="footer__ci"><span className="footer__ci-ic">🌐</span><a href="https://tu.edu.np" target="_blank" rel="noopener noreferrer">www.tu.edu.np</a></div>
-              </div>
-            </div>
-          </div>
-          <div className="footer__stats">
-            {[
-              { val: "60+",   lbl: "Constituent Campuses" },
-              { val: "400K+", lbl: "Enrolled Students" },
-              { val: "300+",  lbl: "Academic Programs" },
-              { val: "65+",   lbl: "Years of Excellence" },
-            ].map(s => (
-              <div key={s.lbl} className="footer__stat">
-                <span className="footer__stat-val">{s.val}</span>
-                <span className="footer__stat-lbl">{s.lbl}</span>
-              </div>
-            ))}
-          </div>
-          <div className="footer__bot">
-            <p className="footer__bot-copy">
-              © {new Date().getFullYear()} <strong>Tribhuvan University</strong>. All Rights Reserved.
-            </p>
-            <div className="footer__bot-legal">
-              <Link to="/privacy">Privacy Policy</Link>
-              <Link to="/terms">Terms of Use</Link>
-              <Link to="/sitemap">Sitemap</Link>
-              <Link to="/contact">Contact</Link>
-            </div>
-          </div>
-        </footer>
-
+       
+<Footer/>
       </div>
     </>
   );

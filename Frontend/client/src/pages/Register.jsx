@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "./Register.css";
 import { toast } from "react-toastify";
+import Base_Url from '../api/Base_Url'
+import {SERVER_URL} from '../api/Base_Url'
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,7 +18,7 @@ export default function Register() {
     setError("");
 
     try {
-      await axios.post("http://localhost:5000/api/auth/register", {
+      await axios.post(`${Base_Url}/auth/register`, {
         name,
         email,
         password,

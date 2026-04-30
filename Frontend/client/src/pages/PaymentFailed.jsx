@@ -1,4 +1,4 @@
-// import React from "react";
+
 // import { useNavigate } from "react-router-dom";
 
 // const PaymentFailed = () => {
@@ -18,6 +18,7 @@
 
 
 // pages/PaymentFailed.jsx
+import React from "react";
 import { useSearchParams } from "react-router-dom";
 
 export default function PaymentFailed() {

@@ -96,10 +96,43 @@ router.get("/all", async (req, res) => {
 });
 
 // UPDATE
-router.put("/:id", async (req, res) => {
-  const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
-  res.json(updated);
+// router.put("/:id", async (req, res) => {
+//   const updated = await Event.findByIdAndUpdate(req.params.id, req.body, { new: true });
+//   res.json(updated);
+// });
+
+router.put("/:id", upload.single("image"), async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+
+    if (!event) {
+      return res.status(404).json({ message: "Event not found" });
+    }
+
+    const updatedData = {
+      title: req.body.title,
+      description: req.body.description,
+      date: req.body.date,
+      imageUrl: event.imageUrl, // default old image
+    };
+
+    // if new image uploaded
+    if (req.file) {
+      updatedData.imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const updated = await Event.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true }
+    );
+
+    res.json({ event: updated });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
 
 // DELETE
 router.delete("/:id", async (req, res) => {

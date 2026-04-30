@@ -4,7 +4,7 @@ import { login, register as registerAPI } from "../api/Auth";
 import { useAuth } from "../context/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 const STYLES = `
   @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600;700&display=swap');
 
@@ -171,33 +171,114 @@ export default function AuthForm() {
   const [role,     setRole]     = useState("student");
   const [error,    setError]    = useState("");
   const [loading,  setLoading]  = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const { setToken } = useAuth();
   const navigate     = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(""); setLoading(true);
-    try {
-      if (isLogin) {
-        const data = await login({ email, password });
-        setToken(data.token);
-        toast.success("Student Login Successful");
-        const payload = JSON.parse(atob(data.token.split(".")[1]));
-        if (payload.role === "admin") navigate("/dashboard");
-        else navigate("/student");
-      } else {
-        if (!name.trim()) { setError("Name is required"); setLoading(false); return; }
-        await registerAPI({ name, email, password, role });
-        toast.success("Registration successful! Please login.");
-        setIsLogin(true);
-        setName(""); setEmail(""); setPassword(""); setRole("student");
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     setError(""); setLoading(true);
+//     try {
+//       if (isLogin) {
+//         const data = await login({ email, password });
+//         setToken(data.token);
+//         // toast.success("Student Login Successful");
+// //       const lastPath = localStorage.getItem("lastPath");
+// const payload = JSON.parse(atob(data.token.split(".")[1]));
+
+// // if (lastPath && lastPath !== "/login" && lastPath !== "/register") {
+// //   navigate(lastPath);
+// // } else {
+// //   if (payload.role === "admin") navigate("/dashboard");
+// //   else navigate("/student");
+// // }
+//         if (payload.role === "admin")
+          
+//            navigate("/dashboard");
+      
+//         else navigate("/student");
+//       } else {
+//         if (!name.trim()) { setError("Name is required"); setLoading(false); return; }
+//         await registerAPI({ name, email, password, role });
+//         toast.success("Registration successful! Please login.");
+//         setIsLogin(true);
+//         setName(""); setEmail(""); setPassword(""); setRole("student");
+//       }
+//     } catch (err) {
+//       console.error(err);
+//       setError(err.response?.data?.message || "Something went wrong");
+//     } finally { setLoading(false); }
+//   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  try {
+    if (isLogin) {
+      const data = await login({ email, password });
+
+      if (!data?.token) {
+        throw new Error("Invalid login response");
       }
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Something went wrong");
-    } finally { setLoading(false); }
-  };
+
+      setToken(data.token);
+
+      // Decode JWT safely
+      let payload = {};
+      try {
+        payload = JSON.parse(atob(data.token.split(".")[1]));
+      } catch {
+        payload = {};
+      }
+
+      const role = payload?.role || "student";
+
+      // Dynamic toast
+      toast.success(`${role.charAt(0).toUpperCase() + role.slice(1)} Login Successful`);
+
+      // Redirect
+      if (role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/student");
+      }
+
+      // Reset fields
+      setEmail("");
+      setPassword("");
+    } else {
+      if (!name.trim()) {
+        setError("Name is required");
+        setLoading(false);
+        return;
+      }
+
+      await registerAPI({ name, email, password, role });
+
+      toast.success("Registration successful! Please login.");
+
+      // Reset form
+      setIsLogin(true);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setRole("student");
+    }
+  } catch (err) {
+    console.error(err);
+
+    const message =
+      err.response?.data?.message ||
+      err.message ||
+      "Something went wrong";
+
+    setError(message);
+    toast.error(message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <>
@@ -380,14 +461,32 @@ export default function AuthForm() {
                   )
                 }
               >
-                <input
+                {/* <input
                   type="password"
                   placeholder="••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="af-field"
-                />
+                /> */}
+  <div className="relative w-full">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="••••••••••"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+    className="af-field pr-10"
+  />
+
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-1 top-1/2 -translate-y-1/2 text-[rgba(201,168,76,.55)] hover:text-[rgba(201,168,76,.9)]"
+  >
+    {showPassword ? <FaEyeSlash size={16} /> : <FaEye size={16} />}
+  </button>
+</div>
               </UField>
             </div>
 
@@ -400,7 +499,7 @@ export default function AuthForm() {
                     className="af-field af-select"
                   >
                     <option value="student">Student</option>
-                    <option value="admin">Admin</option>
+                    {/* <option value="admin">Admin</option> */}
                   </select>
                 </UField>
               </div>

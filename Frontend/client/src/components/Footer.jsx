@@ -1,7 +1,7 @@
 // TuFooter.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import { FaFacebookF, FaTwitter, FaYoutube, FaLinkedinIn, FaMapMarkerAlt, FaPhoneAlt, FaEnvelope, FaGlobe } from "react-icons/fa";
 /* ── Scoped styles that mirror the original HomePageTU footer CSS exactly ── */
 const FOOTER_STYLES = `
   .footer-bridge {
@@ -274,10 +274,21 @@ export default function TuFooter() {
               the people of Nepal through quality education and impactful research.
             </p>
             <div className="footer__socials">
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="Facebook">𝗙</a>
-              <a href="https://twitter.com"  target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="Twitter">𝕏</a>
-              <a href="https://youtube.com"  target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="YouTube">▶</a>
-              <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="LinkedIn">in</a>
+<a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="Facebook">
+  <FaFacebookF />
+</a>
+
+<a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="Twitter">
+  <FaTwitter />
+</a>
+
+<a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="YouTube">
+  <FaYoutube />
+</a>
+
+<a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="LinkedIn">
+  <FaLinkedinIn />
+</a>
             </div>
           </div>
 
@@ -308,10 +319,10 @@ export default function TuFooter() {
           {/* Contact */}
           <div>
             <p className="footer__col-title">Contact</p>
-            <div className="footer__ci"><span className="footer__ci-ic">📍</span><span>Kirtipur, Kathmandu, Nepal</span></div>
-            <div className="footer__ci"><span className="footer__ci-ic">📞</span><a href="tel:+97714330433">+977-1-4330433</a></div>
-            <div className="footer__ci"><span className="footer__ci-ic">✉️</span><a href="mailto:info@tu.edu.np">info@tu.edu.np</a></div>
-            <div className="footer__ci"><span className="footer__ci-ic">🌐</span><a href="https://tu.edu.np" target="_blank" rel="noopener noreferrer">www.tu.edu.np</a></div>
+            <div className="footer__ci"><span className="footer__ci-ic"><FaMapMarkerAlt /></span><span>Kirtipur, Kathmandu, Nepal</span></div>
+            <div className="footer__ci"><span className="footer__ci-ic"><FaPhoneAlt /></span><a href="tel:+97714330433">+977-1-4330433</a></div>
+            <div className="footer__ci"><span className="footer__ci-ic"><FaEnvelope /></span><a href="mailto:info@tu.edu.np">info@tu.edu.np</a></div>
+            <div className="footer__ci"><span className="footer__ci-ic"><FaGlobe /></span><a href="https://tu.edu.np" target="_blank" rel="noopener noreferrer">www.tu.edu.np</a></div>
           </div>
 
         </div>
