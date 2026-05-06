@@ -21,18 +21,29 @@ const { initiateEsewaPayment, esewaSuccess,esewaFailure }=require( "./controller
 // } = require("./controllers/esewaTestController");
 
 
+const allowedOrigins = [
+  "https://college-web-smoky.vercel.app",
+  "https://college-web-git-main-bohoraghanindra-gmailcoms-projects.vercel.app",
+  "https://college-1pqtnrcg0-bohoraghanindra-gmailcoms-projects.vercel.app"
+];
 
 const corsOptions = {
-  origin: "https://college-web-smoky.vercel.app",
-  "https://college-web-git-main-bohoraghanindra-gmailcoms-projects.vercel.app",
-  "https://college-1pqtnrcg0-bohoraghanindra-gmailcoms-projects.vercel.app",
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log("Blocked CORS:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
   allowedHeaders: ["Authorization", "Content-Type", "Accept", "X-Requested-With"],
   credentials: true,
 };
 
-app.use(cors(corsOptions)); // Handles all routes, including OPTIONS preflight
-
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
