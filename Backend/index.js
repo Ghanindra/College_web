@@ -23,7 +23,9 @@ const { initiateEsewaPayment, esewaSuccess,esewaFailure }=require( "./controller
 
 
 const corsOptions = {
-  origin: "https://college-web-smoky.vercel.app/",
+  origin: "https://college-web-smoky.vercel.app",
+  "https://college-web-git-main-bohoraghanindra-gmailcoms-projects.vercel.app",
+  "https://college-1pqtnrcg0-bohoraghanindra-gmailcoms-projects.vercel.app",
   methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
   allowedHeaders: ["Authorization", "Content-Type", "Accept", "X-Requested-With"],
   credentials: true,
