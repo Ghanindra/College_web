@@ -21,13 +21,6 @@ const { initiateEsewaPayment, esewaSuccess,esewaFailure }=require( "./controller
 // } = require("./controllers/esewaTestController");
 
 
-const allowedOrigins = [
-  "https://college-web-smoky.vercel.app",
-  "https://college-web-git-main-bohoraghanindra-gmailcoms-projects.vercel.app",
-  "https://college-1pqtnrcg0-bohoraghanindra-gmailcoms-projects.vercel.app"
-];
-
-const cors = require("cors");
 
 const allowedOrigins = [
   "https://college-web-smoky.vercel.app",
@@ -35,24 +28,30 @@ const allowedOrigins = [
   "https://college-1pqtnrcg0-bohoraghanindra-gmailcoms-projects.vercel.app"
 ];
 
-app.use(cors({
+const corsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.log("❌ Blocked origin:", origin);
-      callback(null, false); // IMPORTANT: don't throw error
+      return callback(null, true);
     }
+
+    console.log("❌ Blocked CORS:", origin);
+    return callback(null, false);
   },
   credentials: true,
   methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
-}));
+};
 
-app.options("*", cors());
-// app.use(cors(corsOptions));
+// ✅ MUST BE FIRST
+app.use(cors(corsOptions));
+
+// ✅ IMPORTANT: handle preflight explicitly
+app.options("*", cors(corsOptions));
+
+// THEN JSON parser
+app.use(express.json());
 app.use(express.json());
 
 // Routes
