@@ -27,23 +27,32 @@ const allowedOrigins = [
   "https://college-1pqtnrcg0-bohoraghanindra-gmailcoms-projects.vercel.app"
 ];
 
-const corsOptions = {
+const cors = require("cors");
+
+const allowedOrigins = [
+  "https://college-web-smoky.vercel.app",
+  "https://college-web-git-main-bohoraghanindra-gmailcoms-projects.vercel.app",
+  "https://college-1pqtnrcg0-bohoraghanindra-gmailcoms-projects.vercel.app"
+];
+
+app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      console.log("Blocked CORS:", origin);
-      callback(new Error("Not allowed by CORS"));
+      console.log("❌ Blocked origin:", origin);
+      callback(null, false); // IMPORTANT: don't throw error
     }
   },
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
-  allowedHeaders: ["Authorization", "Content-Type", "Accept", "X-Requested-With"],
   credentials: true,
-};
+  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
-app.use(cors(corsOptions));
+app.options("*", cors());
+// app.use(cors(corsOptions));
 app.use(express.json());
 
 // Routes
