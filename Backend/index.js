@@ -13,6 +13,7 @@ const examRoutineRoutes = require('./routes/examRoutineRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 // const esewaRoutes = require('./routes/esewaRoutes');
 const path=require('path')
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 const { initiateEsewaPayment, esewaSuccess,esewaFailure }=require( "./controllers/esewaController.js");
 // const {
 //   testEsewaForm,
