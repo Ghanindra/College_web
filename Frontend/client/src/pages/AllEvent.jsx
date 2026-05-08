@@ -71,9 +71,14 @@ export default function AllEvent() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const getImageUrl = (imagePath) =>
-    imagePath ? `${SERVER_URL}${imagePath}` : null;
-
+  // const getImageUrl = (imagePath) =>
+  //   imagePath ? `${SERVER_URL}${imagePath}` : null;
+const getImageUrl = (imagePath) => {
+  const url = imagePath ? `${SERVER_URL}${imagePath}` : null;
+  console.log("IMAGE PATH:", imagePath);
+  console.log("FULL IMAGE URL:", url);
+  return url;
+};
   const sidebarEvents = filteredEvents.filter((e) => e._id !== selectedEvent?._id);
 
   return (
